@@ -4,21 +4,21 @@ import { Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import { FONTS, COLORS } from "../constants/appConfig";
 import Styles from "../constants/styles";
 
-const Button = (props) => {
+const WhiteButton = (props) => {
   const isLoading = props.isLoading || false;
 
   return (
     <TouchableOpacity
       style={{
-        ...Styles.btn,
+        ...Styles.whiteBtn,
         ...props.style,
       }}
       onPress={props.onPress}
     >
       {isLoading && isLoading == true ? (
-        <ActivityIndicator size="small" color={COLORS.white} />
+        <ActivityIndicator size="small" color={COLORS.primary} />
       ) : (
-        <Text style={{ ...FONTS.body2, color: COLORS.white }}>
+        <Text style={{ ...FONTS.body2, color: COLORS.primary }}>
           {props.title}
         </Text>
       )}
@@ -26,4 +26,4 @@ const Button = (props) => {
   );
 };
 
-export default Button;
+export default WhiteButton;

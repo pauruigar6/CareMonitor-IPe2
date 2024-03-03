@@ -1,4 +1,4 @@
-import React from "react";
+// styles.js
 import { StyleSheet } from "react-native";
 import { FONTS, COLORS, SIZES } from "./appConfig";
 
@@ -36,8 +36,12 @@ const Styles = StyleSheet.create({
     justifyContent: "center",
     marginVertical: 12,
   },
+  btnText: {
+    ...FONTS.h4,
+    color: COLORS.white,
+  },
 
-  //Button.js
+  // Button.js
   btn: {
     paddingHorizontal: SIZES.padding,
     paddingVertical: SIZES.padding,
@@ -48,7 +52,73 @@ const Styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: COLORS.primary,
     width: SIZES.width - 44,
-    marginTop: 60
+    marginTop: 60,
+  },
+  whiteBtn: {
+    paddingHorizontal: SIZES.padding,
+    paddingVertical: SIZES.padding,
+    borderColor: COLORS.white,
+    borderWidth: 2,
+    borderRadius: SIZES.padding,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: COLORS.white,
+    width: SIZES.width - 44,
+    marginTop: 60,
+  },
+
+  // input.ja
+  inputContainer: {
+    width: "100%",
+    paddingHorizontal: SIZES.padding,
+    paddingVertical: SIZES.padding2,
+    borderRadius: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.white,
+    marginVertical: 16,
+    flexDirection: "row",
+  },
+  input: {
+    color: COLORS.white,
+    flex: 1,
+    paddingTop: 0,
+    fontSize: 18,
+  },
+  errorContainer: {
+    marginVertical: 4,
+  },
+  errorText: {
+    color: "red",
+    fontSize: 12,
+  },
+
+  // LoginScreen.js
+  safeAreaView: {
+    flex: 1,
+    backgroundColor: COLORS.primary,
+  },
+  smallLogo: {
+    width: 50,
+    height: 50,
+    tintColor: COLORS.white,
+    marginBottom: 20,
+    marginTop: 60,
+  },
+  smallTitle: {
+    ...FONTS.h2,
+    color: COLORS.white,
+  },
+  scrollView: {
+    flex: 1,
+    backgroundColor: COLORS.primary,
+    padding: 16,
+  },
+  passwordContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  eyeIcon: {
+    marginLeft: -26,
   },
 });
 
