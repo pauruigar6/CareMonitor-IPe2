@@ -9,7 +9,7 @@ import SignupScreen from "./screens/SignupScreen";
 import LoginScreen from "./screens/LoginScreen";
 import HomeScreen from "./screens/HomeScreen";
 import AccountScreen from "./screens/AccountScreen";
-import ProfileScreen from "./screens/ProfileScreen";
+import AudioScreen from "./screens/AudioScreen";
 import ResultsScreen from "./screens/ResultsScreen";
 import SettingsScreen from "./screens/SettingsScreen";
 import HelpSupportScreen from "./screens/HelpSupportScreen";
@@ -48,8 +48,8 @@ const App = () => {
             options={{ headerShown: false }}
           />
           <Stack.Screen
-            name="ProfileScreen"
-            component={ProfileScreen}
+            name="AudioScreen"
+            component={AudioScreen}
             options={{ headerShown: false }}
           />
           <Stack.Screen

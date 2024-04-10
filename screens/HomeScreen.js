@@ -4,13 +4,14 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import appConfig, { COLORS } from "../constants/appConfig";
-import ProfileScreen from "./ProfileScreen";
+import AudioScreen from "./AudioScreen";
 import ResultsScreen from "./ResultsScreen";
 import SettingsScreen from "./SettingsScreen";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { db } from "../utils/firebase-config";
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs } from "firebase/firestore";
 import AccountScreen from "./AccountScreen";
+import ProfileScreen from "./ProfileScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -24,7 +25,9 @@ const CustomHeader = ({ navigation }) => {
         if (querySnapshot.docs.length > 0) {
           const userData = querySnapshot.docs[0].data();
           // Obtén la primera letra del nombre y conviértela a mayúsculas
-          const initial = userData.name ? userData.name.charAt(0).toUpperCase() : "";
+          const initial = userData.name
+            ? userData.name.charAt(0).toUpperCase()
+            : "";
           setUserNameInitial(initial);
         }
       } catch (error) {
@@ -36,7 +39,9 @@ const CustomHeader = ({ navigation }) => {
   }, []);
 
   return (
-    <SafeAreaView style={{ height: 130, backgroundColor: appConfig.COLORS.white }}>
+    <SafeAreaView
+      style={{ height: 130, backgroundColor: appConfig.COLORS.white }}
+    >
       <View
         style={{
           flexDirection: "row",
@@ -66,7 +71,9 @@ const CustomHeader = ({ navigation }) => {
           Care Monitor
         </Text>
         <View style={{ flex: 1, alignItems: "flex-end" }}>
-          <TouchableOpacity onPress={() => navigation.navigate("AccountScreen")}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("AccountScreen")}
+          >
             <View
               style={{
                 width: 60,
@@ -110,6 +117,7 @@ const HomeScreen = () => {
           tabBarLabel: route.name === "HealthProfile" ? "Health Profile" : null,
         })}
       />
+
       <Tab.Screen
         name="Results"
         component={ResultsScreen}
@@ -131,7 +139,6 @@ const HomeScreen = () => {
         })}
       />
     </Tab.Navigator>
-    
   );
 };
 
