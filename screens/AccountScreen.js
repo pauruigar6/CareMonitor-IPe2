@@ -1,3 +1,4 @@
+// AccountScreen.js
 import React, { useEffect, useState } from "react";
 import { View, Text, ScrollView, SafeAreaView, StyleSheet } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";

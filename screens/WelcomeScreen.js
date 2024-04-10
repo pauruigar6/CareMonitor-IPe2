@@ -20,10 +20,7 @@ const images = {
 const WelcomeScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
-      <ImageBackground
-        source={background}
-        style={styles.background}
-      >
+      <ImageBackground source={background} style={styles.background}>
         <Image source={images.logo} resizeMode="contain" style={styles.logo} />
         <Text style={styles.title}>CARE MONITOR</Text>
         <Text style={styles.subtitle}>Your health, your control.</Text>
@@ -80,19 +77,19 @@ const styles = StyleSheet.create({
     ...appConfig.FONTS.h1,
     textTransform: "uppercase",
     color: appConfig.COLORS.white,
-  },  
+  },
   subtitle: {
     ...appConfig.FONTS.body3,
-        color: appConfig.COLORS.white
+    color: appConfig.COLORS.white,
   },
   btn: {
     width: appConfig.SIZES.width - 44,
   },
   bottomContainer: {
-    flexDirection: "row", 
-        alignItems: "center",
-        justifyContent: "center",
-        marginVertical: 12
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginVertical: 12,
   },
 });
 

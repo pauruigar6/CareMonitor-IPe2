@@ -1,4 +1,4 @@
-// ResultsScreen.js
+// RecordingsScreen.js
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -12,10 +12,10 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import appConfig from "../constants/appConfig";
 import { useAudio } from "../utils/AudioContext";
 import { Audio } from "expo-av";
-import { getDocs, deleteDoc, doc, collection } from 'firebase/firestore';
-import { auth, db } from '../utils/firebase-config'
+import { getDocs, deleteDoc, doc, collection } from "firebase/firestore";
+import { auth, db } from "../utils/firebase-config";
 
-const ResultsScreen = () => {
+const RecordingsScreen = () => {
   const { state, dispatch } = useAudio();
   const [sound, setSound] = useState();
   const [expandedIndex, setExpandedIndex] = useState(null);
@@ -59,37 +59,40 @@ const ResultsScreen = () => {
   const handleDeleteRecording = async () => {
     try {
       const user = auth.currentUser;
-      const userInfoRef = doc(db, 'userInfo', user.uid);
-      const audioInfoCollectionRef = collection(userInfoRef, 'audioInfo');
+      const userInfoRef = doc(db, "userInfo", user.uid);
+      const audioInfoCollectionRef = collection(userInfoRef, "audioInfo");
 
       if (expandedIndex !== null) {
         const recordingToDelete = state.recordings[expandedIndex];
 
         // Encontrar el documento en la colección según el ID del audio
         const querySnapshot = await getDocs(audioInfoCollectionRef);
-        const audioDoc = querySnapshot.docs.find(doc => doc.id === recordingToDelete.id);
+        const audioDoc = querySnapshot.docs.find(
+          (doc) => doc.id === recordingToDelete.id
+        );
 
         if (audioDoc) {
           // Borrar el documento de la colección
           await deleteDoc(audioDoc.ref);
 
           // Actualizar el estado local eliminando el audio
-          const updatedRecordings = state.recordings.filter((_, i) => i !== expandedIndex);
-          dispatch({ type: 'SET_RECORDINGS', payload: updatedRecordings });
+          const updatedRecordings = state.recordings.filter(
+            (_, i) => i !== expandedIndex
+          );
+          dispatch({ type: "SET_RECORDINGS", payload: updatedRecordings });
         }
       }
     } catch (error) {
-      console.error('Error deleting recording:', error);
+      console.error("Error deleting recording:", error);
     }
   };
-  
 
   const handleClearRecordings = async () => {
     try {
       const user = auth.currentUser;
-      const userInfoRef = doc(db, 'userInfo', user.uid);
-      const audioInfoCollectionRef = collection(userInfoRef, 'audioInfo');
-      
+      const userInfoRef = doc(db, "userInfo", user.uid);
+      const audioInfoCollectionRef = collection(userInfoRef, "audioInfo");
+
       const querySnapshot = await getDocs(audioInfoCollectionRef);
 
       const deletePromises = querySnapshot.docs.map((doc) =>
@@ -97,10 +100,10 @@ const ResultsScreen = () => {
       );
       await Promise.all(deletePromises);
 
-      dispatch({ type: 'CLEAR_ALL_RECORDINGS' });
+      dispatch({ type: "CLEAR_ALL_RECORDINGS" });
       setExpandedIndex(null);
     } catch (error) {
-      console.error('Error clearing recordings:', error);
+      console.error("Error clearing recordings:", error);
     }
   };
 
@@ -108,7 +111,7 @@ const ResultsScreen = () => {
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.contentContainer}>
         <Text style={{ ...appConfig.FONTS.h1, color: appConfig.COLORS.black }}>
-          Results
+          Recordings
         </Text>
         {state.recordings.map((recording, index) => (
           <TouchableOpacity
@@ -219,4 +222,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ResultsScreen;
+export default RecordingsScreen;

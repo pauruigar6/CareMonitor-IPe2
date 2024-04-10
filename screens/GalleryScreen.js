@@ -1,15 +1,15 @@
-// HomeScreen.js
+//GalleryScreen.js
 import React, { useEffect, useState } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { View, Text, TouchableOpacity, Image } from "react-native";
-import appConfig, { COLORS } from "../constants/appConfig";
+import appConfig, { COLORS } from "../constants/appConfig.js";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { db } from "../utils/firebase-config";
+import { db } from "../utils/firebase-config.js";
 import { collection, getDocs } from "firebase/firestore";
 
-import ProfileScreen from "./ProfileScreen";
-import SettingsScreen from "./SettingsScreen";
+import MicrophoneScreen from "./MicrophoneScreen";
+import RecordingsScreen from "./RecordingsScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -94,7 +94,7 @@ const CustomHeader = ({ navigation }) => {
   );
 };
 
-const HomeScreen = () => {
+const AudioScreen = () => {
   return (
     <Tab.Navigator
       screenOptions={{
@@ -106,27 +106,31 @@ const HomeScreen = () => {
       }}
     >
       <Tab.Screen
-        name="HealthProfile"
-        component={ProfileScreen}
-        options={({ route }) => ({
+        name="Microphone"
+        component={MicrophoneScreen}
+        options={{
           tabBarIcon: ({ color, size }) => (
-            <FontAwesome5 name="heartbeat" size={size} color={color} solid />
+            <FontAwesome5
+              name="microphone-alt"
+              size={size}
+              color={color}
+              solid
+            />
           ),
-          tabBarLabel: route.name === "HealthProfile" ? "Health Profile" : null,
-        })}
+        }}
       />
+
       <Tab.Screen
-        name="Settings"
-        component={SettingsScreen}
-        options={({ route }) => ({
+        name="Recordings"
+        component={RecordingsScreen}
+        options={{
           tabBarIcon: ({ color, size }) => (
-            <FontAwesome5 name="cog" size={size} color={color} solid />
+            <FontAwesome5 name="file-audio" size={size} color={color} solid />
           ),
-          tabBarLabel: route.name === "Settings" ? "Settings" : null,
-        })}
+        }}
       />
     </Tab.Navigator>
   );
 };
 
-export default HomeScreen;
+export default AudioScreen;

@@ -1,5 +1,11 @@
 import React from "react";
-import { View, TouchableOpacity, Text, StyleSheet, ScrollView } from "react-native";
+import {
+  View,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  ScrollView,
+} from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons"; // Importa FontAwesome5
 import appConfig from "../constants/appConfig";
 
@@ -16,15 +22,23 @@ const ProfileScreen = ({ navigation }) => {
             style={styles.button}
             onPress={() => handleNavigation("AudioScreen")}
           >
-            <FontAwesome5 name="volume-up" size={24} color={appConfig.COLORS.white} />
+            <FontAwesome5
+              name="volume-up"
+              size={24}
+              color={appConfig.COLORS.white}
+            />
             <Text style={styles.buttonText}>Audio</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.button}
-            onPress={() => handleNavigation("Photo")}
+            onPress={() => handleNavigation("GalleryScreen")}
           >
-            <FontAwesome5 name="camera" size={24} color={appConfig.COLORS.white} />
-            <Text style={styles.buttonText}>Photo</Text>
+            <FontAwesome5
+              name="camera"
+              size={24}
+              color={appConfig.COLORS.white}
+            />
+            <Text style={styles.buttonText}>Camera</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.row}>
@@ -32,7 +46,11 @@ const ProfileScreen = ({ navigation }) => {
             style={styles.button}
             onPress={() => handleNavigation("Text")}
           >
-            <FontAwesome5 name="file-alt" size={24} color={appConfig.COLORS.white} />
+            <FontAwesome5
+              name="file-alt"
+              size={24}
+              color={appConfig.COLORS.white}
+            />
             <Text style={styles.buttonText}>Text</Text>
           </TouchableOpacity>
           <TouchableOpacity

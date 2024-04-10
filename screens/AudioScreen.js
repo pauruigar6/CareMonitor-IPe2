@@ -1,212 +1,131 @@
 // AudioScreen.js
-import React, { useState, useEffect } from "react";
-import {
-  SafeAreaView,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  View,
-  Alert,
-} from "react-native";
+import React, { useEffect, useState } from "react";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { FontAwesome5 } from "@expo/vector-icons";
-import appConfig from "../constants/appConfig";
-import { Audio } from "expo-av";
-import { useAudio } from "../utils/AudioContext";
-import { v4 as uuidv4 } from "uuid";
-import "react-native-get-random-values";
+import { View, Text, TouchableOpacity, Image } from "react-native";
+import appConfig, { COLORS } from "../constants/appConfig";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { db } from "../utils/firebase-config";
+import { collection, getDocs } from "firebase/firestore";
 
-import {
-  auth,
-  db,
-  signInWithEmailAndPassword,
-  signOut,
-} from "../utils/firebase-config";
-import {
-  doc,
-  addDoc,
-  collection,
-  serverTimestamp,
-  getDocs,
-  query,
-  where,
-} from "firebase/firestore";
+import MicrophoneScreen from "./MicrophoneScreen";
+import RecordingsScreen from "./RecordingsScreen";
 
-const AudioScreen = ({ navigation }) => {
-  const { dispatch } = useAudio();
-  const [recording, setRecording] = useState();
-  const [recordings, setRecordings] = useState([]);
-  const [userId, setUserId] = useState("");
+const Tab = createBottomTabNavigator();
+
+const CustomHeader = ({ navigation }) => {
+  const [userNameInitial, setUserNameInitial] = useState("");
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
-        setUserId(user.uid);
-        loadUserRecordings(user.uid);
-      } else {
-        console.log("Usuario no autenticado");
-      }
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  const loadUserRecordings = async (userId) => {
-    try {
-      const userInfoRef = doc(db, "userInfo", userId);
-      const audioInfoCollectionRef = collection(userInfoRef, "audioInfo");
-      const querySnapshot = await getDocs(audioInfoCollectionRef);
-
-      const userRecordings = [];
-      querySnapshot.forEach((doc) => {
-        const recordingData = doc.data();
-        userRecordings.push({
-          id: recordingData.id,
-          title: recordingData.title,
-          duration: recordingData.duration,
-          file: recordingData.file,
-        });
-      });
-
-      setRecordings(userRecordings);
-      dispatch({ type: "SET_RECORDINGS", payload: userRecordings });
-    } catch (error) {
-      console.error("Error loading user recordings: ", error);
-    }
-  };
-
-  const startRecording = async () => {
-    try {
-      const perm = await Audio.requestPermissionsAsync();
-      if (perm.status === "granted") {
-        await Audio.setAudioModeAsync({
-          allowsRecordingIOS: true,
-          playsInSilentModeIOS: true,
-        });
-        const { recording } = await Audio.Recording.createAsync(
-          Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY
-        );
-        setRecording(recording);
-      }
-    } catch (err) {
-      console.error("Error al iniciar la grabación", err);
-    }
-  };
-
-  const stopRecording = async () => {
-    if (recording) {
-      setRecording(undefined);
-      await recording.stopAndUnloadAsync();
-      const { sound, status } = await recording.createNewLoadedSoundAsync();
-
-      const newRecording = {
-        id: uuidv4(),
-        title: `Recording ${recordings.length + 1}`,
-        duration: status.durationMillis,
-        file: recording.getURI(),
-      };
-
-      setRecordings([...recordings, newRecording]);
-
+    const fetchUserData = async () => {
       try {
-        const userInfoRef = doc(db, "userInfo", userId);
-        const audioInfoCollectionRef = collection(userInfoRef, "audioInfo");
-
-        // Log para verificar userId y referencia userInfoRef
-        console.log("userId:", userId);
-        console.log("userInfoRef:", userInfoRef);
-
-        const audioDocRef = await addDoc(audioInfoCollectionRef, {
-          id: newRecording.id,
-          title: newRecording.title,
-          duration: newRecording.duration,
-          file: newRecording.file,
-          timestamp: serverTimestamp(),
-        });
-
-        // Log para verificar que se ha creado el documento de audio
-        console.log("Audio document written with ID: ", audioDocRef.id);
-        
-        // Después de guardar la grabación, vuelve a cargar las grabaciones del usuario
-        loadUserRecordings(userId);
+        const querySnapshot = await getDocs(collection(db, "userInfo"));
+        if (querySnapshot.docs.length > 0) {
+          const userData = querySnapshot.docs[0].data();
+          // Obtén la primera letra del nombre y conviértela a mayúsculas
+          const initial = userData.name
+            ? userData.name.charAt(0).toUpperCase()
+            : "";
+          setUserNameInitial(initial);
+        }
       } catch (error) {
-        console.error("Error adding audio document: ", error);
+        console.error("Error fetching user data from Firestore:", error);
       }
+    };
 
-      dispatch({ type: "ADD_RECORDING", payload: newRecording });
-    }
-  };
+    fetchUserData();
+  }, []);
 
   return (
     <SafeAreaView
-      style={{ flex: 1, backgroundColor: appConfig.COLORS.background }}
+      style={{ height: 130, backgroundColor: appConfig.COLORS.white }}
     >
-      <ScrollView
-        contentContainerStyle={styles.scrollViewContent}
+      <View
         style={{
-          flex: 1,
-          backgroundColor: appConfig.COLORS.background,
+          flexDirection: "row",
+          alignItems: "center",
+          padding: 16,
+          backgroundColor: appConfig.COLORS.white,
+          height: 100,
         }}
       >
-        <View style={styles.container}>
-          <Text style={styles.title}>Health Profile</Text>
-          <View style={styles.btn}>
-            <TouchableOpacity
-              style={styles.uploadButton}
-              onPress={recording ? stopRecording : startRecording}
+        <Image
+          source={require("../assets/logo.png")}
+          style={{
+            width: 50,
+            height: 50,
+            marginRight: 10,
+            tintColor: appConfig.COLORS.black,
+            marginLeft: 10,
+          }}
+        />
+        <Text
+          style={{
+            fontSize: 20,
+            fontWeight: "bold",
+            color: appConfig.COLORS.black,
+          }}
+        >
+          Care Monitor
+        </Text>
+        <View style={{ flex: 1, alignItems: "flex-end" }}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("AccountScreen")}
+          >
+            <View
+              style={{
+                width: 60,
+                height: 60,
+                backgroundColor: appConfig.COLORS.primary,
+                borderRadius: 30,
+                justifyContent: "center",
+                alignItems: "center",
+                marginRight: 10,
+              }}
             >
-              <FontAwesome5
-                name={recording ? "stop" : "microphone"}
-                style={styles.uploadIcon}
-              />
-              <Text style={styles.uploadText}>
-                {recording ? "Stop Recording" : "Start Recording"}
+              <Text style={{ color: COLORS.white, fontSize: 18 }}>
+                {userNameInitial}
               </Text>
-            </TouchableOpacity>
-          </View>
+            </View>
+          </TouchableOpacity>
         </View>
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-  },
-  scrollViewContent: {
-    flexGrow: 1,
-    justifyContent: "center",
-  },
-  title: {
-    ...appConfig.FONTS.h1,
-    color: appConfig.COLORS.black,
-    marginBottom: 16,
-  },
-  btn: {
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 125,
-  },
-  uploadButton: {
-    width: 300,
-    height: 300,
-    borderRadius: 200,
-    backgroundColor: appConfig.COLORS.primary,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 120,
-  },
-  uploadIcon: {
-    fontSize: 60,
-    color: appConfig.COLORS.white,
-  },
-  uploadText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: appConfig.COLORS.white,
-  },
-});
+const AudioScreen = () => {
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        showLabel: false,
+        style: { backgroundColor: appConfig.COLORS.white },
+        header: ({ navigation }) => <CustomHeader navigation={navigation} />,
+        tabBarStyle: { height: 80 },
+        tabBarActiveTintColor: appConfig.COLORS.primary,
+      }}
+    >
+      <Tab.Screen
+        name="Microphone"
+        component={MicrophoneScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <FontAwesome5 name="microphone-alt" size={size} color={color} solid />
+          ),
+        }}
+      />
+
+      <Tab.Screen
+        name="Recordings"
+        component={RecordingsScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <FontAwesome5 name="file-audio" size={size} color={color} solid />
+          ),
+        }}
+      />
+    </Tab.Navigator>
+  );
+};
 
 export default AudioScreen;

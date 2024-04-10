@@ -9,8 +9,14 @@ import SignupScreen from "./screens/SignupScreen";
 import LoginScreen from "./screens/LoginScreen";
 import HomeScreen from "./screens/HomeScreen";
 import AccountScreen from "./screens/AccountScreen";
+import ProfileScreen from "./screens/ProfileScreen.js";
+
 import AudioScreen from "./screens/AudioScreen";
-import ResultsScreen from "./screens/ResultsScreen";
+import MicrophoneScreen from "./screens/MicrophoneScreen";
+import RecordingsScreen from "./screens/RecordingsScreen";
+
+import GalleryScreen from "./screens/GalleryScreen"
+
 import SettingsScreen from "./screens/SettingsScreen";
 import HelpSupportScreen from "./screens/HelpSupportScreen";
 import TermsAndPoliciesScreen from "./screens/TermsAndPoliciesScreen";
@@ -48,13 +54,28 @@ const App = () => {
             options={{ headerShown: false }}
           />
           <Stack.Screen
+            name="ProfileScreen"
+            component={ProfileScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
             name="AudioScreen"
             component={AudioScreen}
             options={{ headerShown: false }}
           />
           <Stack.Screen
-            name="ResultsScreen"
-            component={ResultsScreen}
+            name="MicrophoneScreen"
+            component={MicrophoneScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="RecordingsScreen"
+            component={RecordingsScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="GalleryScreen"
+            component={GalleryScreen}
             options={{ headerShown: false }}
           />
           <Stack.Screen
