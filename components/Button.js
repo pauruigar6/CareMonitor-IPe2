@@ -1,8 +1,12 @@
 // Button.js
+import {
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native";
 import React from "react";
-import { Text, TouchableOpacity, ActivityIndicator } from "react-native";
-import { FONTS, COLORS } from "../constants/appConfig";
-import Styles from "../constants/styles";
+import { COLORS, FONTS, SIZES } from "../constants/appConfig";
 
 const Button = (props) => {
   const isLoading = props.isLoading || false;
@@ -10,7 +14,7 @@ const Button = (props) => {
   return (
     <TouchableOpacity
       style={{
-        ...Styles.btn,
+        ...styles.btn,
         ...props.style,
       }}
       onPress={props.onPress}
@@ -25,5 +29,17 @@ const Button = (props) => {
     </TouchableOpacity>
   );
 };
+const styles = StyleSheet.create({
+  btn: {
+    paddingHorizontal: SIZES.padding,
+    paddingVertical: SIZES.padding,
+    borderColor: COLORS.primary,
+    borderWidth: 2,
+    borderRadius: SIZES.padding,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: COLORS.primary,
+  },
+});
 
 export default Button;
