@@ -15,12 +15,14 @@ import AudioScreen from "./screens/AudioScreen";
 import MicrophoneScreen from "./screens/MicrophoneScreen";
 import RecordingsScreen from "./screens/RecordingsScreen";
 
-import GalleryScreen from "./screens/GalleryScreen"
+import GalleryScreen from "./screens/GalleryScreen";
 import CameraScreen from "./screens/CameraScreen.js";
 import PhotoScreen from "./screens/PhotoScreen.js";
 import VideoScreen from "./screens/VideoScreen.js";
 
 import TextScreen from "./screens/TextScreen.js";
+import KeyboardScreen from "./screens/KeyboardScreen.js";
+import NotesScreen from "./screens/TextScreen.js";
 
 import SettingsScreen from "./screens/SettingsScreen";
 import HelpSupportScreen from "./screens/HelpSupportScreen";
@@ -101,6 +103,16 @@ const App = () => {
           <Stack.Screen
             name="TextScreen"
             component={TextScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="NotesScreen"
+            component={NotesScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="KeyboardScreen"
+            component={KeyboardScreen}
             options={{ headerShown: false }}
           />
           <Stack.Screen

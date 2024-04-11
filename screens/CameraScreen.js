@@ -82,7 +82,7 @@ const CameraScreen = ({ navigation }) => {
 
       await addDoc(mediaRef, mediaData);
 
-      Alert.alert("Media Saved", "The media has been saved successfully.");
+      // Alert.alert("Media Saved", "The media has been saved successfully.");
     } catch (error) {
       console.error("Error saving media:", error);
       Alert.alert("Error", "An error occurred while saving the media.");

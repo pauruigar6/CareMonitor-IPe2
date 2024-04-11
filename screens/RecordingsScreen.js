@@ -56,37 +56,6 @@ const RecordingsScreen = () => {
     setExpandedIndex((prevIndex) => (prevIndex === index ? null : index));
   };
 
-  const handleDeleteRecording = async () => {
-    try {
-      const user = auth.currentUser;
-      const userInfoRef = doc(db, "userInfo", user.uid);
-      const audioInfoCollectionRef = collection(userInfoRef, "audioInfo");
-
-      if (expandedIndex !== null) {
-        const recordingToDelete = state.recordings[expandedIndex];
-
-        // Encontrar el documento en la colección según el ID del audio
-        const querySnapshot = await getDocs(audioInfoCollectionRef);
-        const audioDoc = querySnapshot.docs.find(
-          (doc) => doc.id === recordingToDelete.id
-        );
-
-        if (audioDoc) {
-          // Borrar el documento de la colección
-          await deleteDoc(audioDoc.ref);
-
-          // Actualizar el estado local eliminando el audio
-          const updatedRecordings = state.recordings.filter(
-            (_, i) => i !== expandedIndex
-          );
-          dispatch({ type: "SET_RECORDINGS", payload: updatedRecordings });
-        }
-      }
-    } catch (error) {
-      console.error("Error deleting recording:", error);
-    }
-  };
-
   const handleClearRecordings = async () => {
     try {
       const user = auth.currentUser;
