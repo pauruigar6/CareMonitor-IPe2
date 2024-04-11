@@ -11,10 +11,12 @@ import {
 import appConfig from "../constants/appConfig";
 import { db, auth } from "../utils/firebase-config";
 import { collection, onSnapshot, getDocs, deleteDoc } from "firebase/firestore";
-
+import ImageViewer from "react-native-image-zoom-viewer";
+import { MaterialIcons } from "@expo/vector-icons";
 
 const PhotoScreen = () => {
   const [photos, setPhotos] = useState([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(null);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "userInfo", auth.currentUser.uid, "photoInfo"), (snapshot) => {
@@ -46,6 +48,21 @@ const PhotoScreen = () => {
     }
   };
 
+  const handleImagePress = (index) => {
+    setCurrentImageIndex(index);
+  };
+
+  const renderPhotos = () => {
+    return photos.map((photo, index) => (
+      <TouchableOpacity key={index} onPress={() => handleImagePress(index)}>
+        <Image
+          source={{ uri: photo.uri }}
+          style={styles.image}
+        />
+      </TouchableOpacity>
+    ));
+  };
+
   return (
     <SafeAreaView
       style={{ flex: 1, backgroundColor: appConfig.COLORS.background }}
@@ -53,13 +70,7 @@ const PhotoScreen = () => {
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <Text style={styles.title}>Photo Gallery</Text>
         <View style={styles.gallery}>
-          {photos.map((photo, index) => (
-            <Image
-              key={index}
-              source={{ uri: photo.uri }}
-              style={styles.image}
-            />
-          ))}
+          {renderPhotos()}
         </View>
         {photos.length > 0 && (
           <TouchableOpacity onPress={clearPhotos} style={styles.clearButton}>
@@ -67,6 +78,24 @@ const PhotoScreen = () => {
           </TouchableOpacity>
         )}
       </ScrollView>
+      {currentImageIndex !== null && (
+        <View style={styles.fullScreenContainer}>
+          <ImageViewer
+            imageUrls={photos.map((photo) => ({ url: photo.uri }))}
+            index={currentImageIndex}
+            enableSwipeDown
+            renderHeader={() => (
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setCurrentImageIndex(null)}
+              >
+                <MaterialIcons name="close" size={24} color="white" />
+              </TouchableOpacity>
+            )}
+            style={styles.imageViewer}
+          />
+        </View>
+      )}
     </SafeAreaView>
   );
 };
@@ -81,12 +110,11 @@ const styles = StyleSheet.create({
     ...appConfig.FONTS.h1,
     color: appConfig.COLORS.black,
     marginBottom: 16,
-    
   },
   gallery: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "center",
+    justifyContent: "flex-start",
   },
   image: {
     width: 150,
@@ -105,6 +133,20 @@ const styles = StyleSheet.create({
   clearButtonText: {
     color: appConfig.COLORS.white,
     fontSize: 16,
+  },
+  fullScreenContainer: {
+    flex: 1,
+    backgroundColor: "black",
+  },
+  imageViewer: {
+    flex: 1,
+    backgroundColor: "black",
+  },
+  closeButton: {
+    position: "absolute",
+    top: 40,
+    right: 20,
+    zIndex: 1,
   },
 });
 

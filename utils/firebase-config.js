@@ -11,6 +11,7 @@ import {
   serverTimestamp,
   addDoc,
   doc,
+  getDocs,
 } from "firebase/firestore";
 import { getReactNativePersistence } from "firebase/auth";
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
@@ -40,4 +41,5 @@ export {
   serverTimestamp,
   addDoc,
   doc,
+  getDocs,
 };

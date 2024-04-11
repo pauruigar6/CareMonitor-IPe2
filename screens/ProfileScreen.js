@@ -44,7 +44,7 @@ const ProfileScreen = ({ navigation }) => {
         <View style={styles.row}>
           <TouchableOpacity
             style={styles.button}
-            onPress={() => handleNavigation("Text")}
+            onPress={() => handleNavigation("TextScreen")}
           >
             <FontAwesome5
               name="file-alt"

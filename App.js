@@ -20,6 +20,8 @@ import CameraScreen from "./screens/CameraScreen.js";
 import PhotoScreen from "./screens/PhotoScreen.js";
 import VideoScreen from "./screens/VideoScreen.js";
 
+import TextScreen from "./screens/TextScreen.js";
+
 import SettingsScreen from "./screens/SettingsScreen";
 import HelpSupportScreen from "./screens/HelpSupportScreen";
 import TermsAndPoliciesScreen from "./screens/TermsAndPoliciesScreen";
@@ -94,6 +96,11 @@ const App = () => {
           <Stack.Screen
             name="VideoScreen"
             component={VideoScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="TextScreen"
+            component={TextScreen}
             options={{ headerShown: false }}
           />
           <Stack.Screen
