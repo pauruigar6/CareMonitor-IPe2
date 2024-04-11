@@ -68,7 +68,7 @@ const PhotoScreen = () => {
     <SafeAreaView
       style={{ flex: 1, backgroundColor: appConfig.COLORS.background }}
     >
-      <ScrollView contentContainerStyle={styles.scrollViewContent}>
+      <ScrollView contentContainerStyle={styles.contentContainer}>
         <Text style={styles.title}>Photo Gallery</Text>
         <View style={styles.gallery}>{renderPhotos()}</View>
         {photos.length > 0 && (
@@ -76,7 +76,7 @@ const PhotoScreen = () => {
             <Text style={styles.clearButtonText}>Clear Photos</Text>
           </TouchableOpacity>
         )}
-      </ScrollView>
+      
       {currentImageIndex !== null && (
         <View style={styles.fullScreenContainer}>
           <ImageViewer
@@ -95,16 +95,16 @@ const PhotoScreen = () => {
           />
         </View>
       )}
+      </ScrollView>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  scrollViewContent: {
-    paddingVertical: 20,
-    flex: 1,
+  contentContainer: {
     padding: 16,
   },
+
   title: {
     ...appConfig.FONTS.h1,
     color: appConfig.COLORS.black,

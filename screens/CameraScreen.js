@@ -31,7 +31,7 @@ const CameraScreen = ({ navigation }) => {
   };
 
   const takePicture = async () => {
-    if (cameraRef && !isRecording && mode === "photo") {
+    if (cameraRef && mode === "photo") {
       try {
         const photo = await cameraRef.takePictureAsync();
         saveMedia(photo.uri);
@@ -42,7 +42,7 @@ const CameraScreen = ({ navigation }) => {
   };
 
   const startRecording = async () => {
-    if (cameraRef && !isRecording && mode === "video") {
+    if (cameraRef && mode === "video") {
       try {
         const { uri } = await cameraRef.recordAsync();
         setIsRecording(true);
@@ -110,21 +110,21 @@ const CameraScreen = ({ navigation }) => {
           {mode === "photo" ? "Video" : "Photo"}
         </Text>
       </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.captureButton}
-        onPress={
-          mode === "video"
-            ? isRecording
-              ? stopRecording
-              : startRecording
-            : takePicture
-        }
-      >
-        <FontAwesome5
-          name={mode === "video" ? (isRecording ? "stop" : "circle") : "camera"}
-          style={styles.icon}
-        />
-      </TouchableOpacity>
+      {mode === "photo" ? (
+        <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
+          <FontAwesome5 name="camera" style={styles.icon} />
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity
+          style={styles.captureButton}
+          onPress={isRecording ? stopRecording : startRecording}
+        >
+          <FontAwesome5
+            name={isRecording ? "stop" : "circle"}
+            style={styles.icon}
+          />
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
