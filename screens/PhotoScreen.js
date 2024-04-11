@@ -1,12 +1,111 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  SafeAreaView,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
+import appConfig from "../constants/appConfig";
+import { db, auth } from "../utils/firebase-config";
+import { collection, onSnapshot, getDocs, deleteDoc } from "firebase/firestore";
+
 
 const PhotoScreen = () => {
-  return (
-    <View>
-      <Text>PhotoScreen</Text>
-    </View>
-  )
-}
+  const [photos, setPhotos] = useState([]);
 
-export default PhotoScreen
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, "userInfo", auth.currentUser.uid, "photoInfo"), (snapshot) => {
+      const fetchedPhotos = [];
+      snapshot.forEach((doc) => {
+        const photoData = doc.data();
+        fetchedPhotos.push({ id: doc.id, uri: photoData.uri });
+      });
+      setPhotos(fetchedPhotos);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const clearPhotos = async () => {
+    try {
+      const userInfoSnapshot = await getDocs(collection(db, "userInfo"));
+      userInfoSnapshot.forEach(async (userInfoDoc) => {
+        const photoInfoSnapshot = await getDocs(
+          collection(userInfoDoc.ref, "photoInfo")
+        );
+        photoInfoSnapshot.forEach(async (photoDoc) => {
+          await deleteDoc(photoDoc.ref);
+        });
+      });
+      setPhotos([]);
+    } catch (error) {
+      console.error("Error clearing photos from Firestore:", error);
+    }
+  };
+
+  return (
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: appConfig.COLORS.background }}
+    >
+      <ScrollView contentContainerStyle={styles.scrollViewContent}>
+        <Text style={styles.title}>Photo Gallery</Text>
+        <View style={styles.gallery}>
+          {photos.map((photo, index) => (
+            <Image
+              key={index}
+              source={{ uri: photo.uri }}
+              style={styles.image}
+            />
+          ))}
+        </View>
+        {photos.length > 0 && (
+          <TouchableOpacity onPress={clearPhotos} style={styles.clearButton}>
+            <Text style={styles.clearButtonText}>Clear Photos</Text>
+          </TouchableOpacity>
+        )}
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  scrollViewContent: {
+    paddingVertical: 20,
+    flex: 1,
+    padding: 16,
+  },
+  title: {
+    ...appConfig.FONTS.h1,
+    color: appConfig.COLORS.black,
+    marginBottom: 16,
+    
+  },
+  gallery: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+  },
+  image: {
+    width: 150,
+    height: 150,
+    margin: 10,
+    borderRadius: 10,
+  },
+  clearButton: {
+    backgroundColor: appConfig.COLORS.primary,
+    borderRadius: 8,
+    padding: 10,
+    alignSelf: "center",
+    marginTop: 40,
+    marginBottom: 20,
+  },
+  clearButtonText: {
+    color: appConfig.COLORS.white,
+    fontSize: 16,
+  },
+});
+
+export default PhotoScreen;

@@ -149,7 +149,7 @@ const MicrophoneScreen = ({ navigation }) => {
         }}
       >
         <View style={styles.container}>
-          <Text style={styles.title}>Health Profile</Text>
+          <Text style={styles.title}>Microphone</Text>
           <View style={styles.btn}>
             <TouchableOpacity
               style={styles.uploadButton}
