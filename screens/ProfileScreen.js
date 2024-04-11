@@ -1,3 +1,4 @@
+// ProfileScreen.js
 import React from "react";
 import {
   View,
@@ -55,7 +56,7 @@ const ProfileScreen = ({ navigation }) => {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.button}
-            onPress={() => handleNavigation("Handwriting")}
+            onPress={() => handleNavigation("HandwritingScreen")}
           >
             <FontAwesome5 name="pen" size={24} color={appConfig.COLORS.white} />
             <Text style={styles.buttonText}>Handwriting</Text>

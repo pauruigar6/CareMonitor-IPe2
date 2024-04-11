@@ -1,16 +1,15 @@
-// GalleryScreen.js
+// HandwritingScreen.js
 import React, { useEffect, useState } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { View, Text, TouchableOpacity, Image } from "react-native";
-import appConfig, { COLORS } from "../constants/appConfig.js";
+import appConfig, { COLORS } from "../constants/appConfig";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { db } from "../utils/firebase-config.js";
+import { db } from "../utils/firebase-config";
 import { collection, getDocs } from "firebase/firestore";
 
-import CameraScreen from "./CameraScreen";
-import PhotoScreen from "./PhotoScreen";
-import VideoScreen from "./VideoScreen.js";
+import PaintScreen from "./PaintScreen";
+import DesignScreen from "./DesignScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -95,7 +94,7 @@ const CustomHeader = ({ navigation }) => {
   );
 };
 
-const GalleryScreen = () => {
+const HandwritingScreen = () => {
   return (
     <Tab.Navigator
       screenOptions={{
@@ -107,30 +106,21 @@ const GalleryScreen = () => {
       }}
     >
       <Tab.Screen
-        name="Camera"
-        component={CameraScreen}
+        name="New Handwriting"
+        component={PaintScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <FontAwesome5 name="camera" size={size} color={color} solid />
+            <FontAwesome5 name="pen" size={size} color={color} solid />
           ),
         }}
       />
 
       <Tab.Screen
-        name="Photos"
-        component={PhotoScreen}
+        name="My Handwritings"
+        component={DesignScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <FontAwesome5 name="image" size={size} color={color} solid />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Videos"
-        component={VideoScreen}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <FontAwesome5 name="film" size={size} color={color} solid />
+            <FontAwesome5 name="list-alt" size={size} color={color} solid />
           ),
         }}
       />
@@ -138,4 +128,4 @@ const GalleryScreen = () => {
   );
 };
 
-export default GalleryScreen;
+export default HandwritingScreen;

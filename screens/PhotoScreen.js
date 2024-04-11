@@ -1,3 +1,4 @@
+// PhotoScreen.js
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -19,14 +20,17 @@ const PhotoScreen = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(null);
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "userInfo", auth.currentUser.uid, "photoInfo"), (snapshot) => {
-      const fetchedPhotos = [];
-      snapshot.forEach((doc) => {
-        const photoData = doc.data();
-        fetchedPhotos.push({ id: doc.id, uri: photoData.uri });
-      });
-      setPhotos(fetchedPhotos);
-    });
+    const unsubscribe = onSnapshot(
+      collection(db, "userInfo", auth.currentUser.uid, "photoInfo"),
+      (snapshot) => {
+        const fetchedPhotos = [];
+        snapshot.forEach((doc) => {
+          const photoData = doc.data();
+          fetchedPhotos.push({ id: doc.id, uri: photoData.uri });
+        });
+        setPhotos(fetchedPhotos);
+      }
+    );
 
     return () => unsubscribe();
   }, []);
@@ -55,10 +59,7 @@ const PhotoScreen = () => {
   const renderPhotos = () => {
     return photos.map((photo, index) => (
       <TouchableOpacity key={index} onPress={() => handleImagePress(index)}>
-        <Image
-          source={{ uri: photo.uri }}
-          style={styles.image}
-        />
+        <Image source={{ uri: photo.uri }} style={styles.image} />
       </TouchableOpacity>
     ));
   };
@@ -69,9 +70,7 @@ const PhotoScreen = () => {
     >
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <Text style={styles.title}>Photo Gallery</Text>
-        <View style={styles.gallery}>
-          {renderPhotos()}
-        </View>
+        <View style={styles.gallery}>{renderPhotos()}</View>
         {photos.length > 0 && (
           <TouchableOpacity onPress={clearPhotos} style={styles.clearButton}>
             <Text style={styles.clearButtonText}>Clear Photos</Text>

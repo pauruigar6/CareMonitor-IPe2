@@ -24,6 +24,10 @@ import TextScreen from "./screens/TextScreen.js";
 import KeyboardScreen from "./screens/KeyboardScreen.js";
 import NotesScreen from "./screens/TextScreen.js";
 
+import HandwritingScreen from "./screens/HandwritingScreen.js";
+import PaintScreen from "./screens/PaintScreen.js";
+import DesignScreen from "./screens/DesignScreen.js";
+
 import SettingsScreen from "./screens/SettingsScreen";
 import HelpSupportScreen from "./screens/HelpSupportScreen";
 import TermsAndPoliciesScreen from "./screens/TermsAndPoliciesScreen";
@@ -113,6 +117,21 @@ const App = () => {
           <Stack.Screen
             name="KeyboardScreen"
             component={KeyboardScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="HandwritingScreen"
+            component={HandwritingScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="PaintScreen"
+            component={PaintScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="DesignScreen"
+            component={DesignScreen}
             options={{ headerShown: false }}
           />
           <Stack.Screen
