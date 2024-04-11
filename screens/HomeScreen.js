@@ -22,7 +22,7 @@ const CustomHeader = ({ navigation }) => {
         const querySnapshot = await getDocs(collection(db, "userInfo"));
         if (querySnapshot.docs.length > 0) {
           const userData = querySnapshot.docs[0].data();
-          // Obtén la primera letra del nombre y conviértela a mayúsculas
+          console.log("User data:", userData); // Agrega esta línea
           const initial = userData.name
             ? userData.name.charAt(0).toUpperCase()
             : "";
@@ -32,7 +32,7 @@ const CustomHeader = ({ navigation }) => {
         console.error("Error fetching user data from Firestore:", error);
       }
     };
-
+  
     fetchUserData();
   }, []);
 

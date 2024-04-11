@@ -1,4 +1,3 @@
-//GalleryScreen.js
 import React, { useEffect, useState } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { FontAwesome5 } from "@expo/vector-icons";
@@ -8,8 +7,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { db } from "../utils/firebase-config.js";
 import { collection, getDocs } from "firebase/firestore";
 
-import MicrophoneScreen from "./MicrophoneScreen";
-import RecordingsScreen from "./RecordingsScreen";
+import CameraScreen from "./CameraScreen";
+import PhotoScreen from "./PhotoScreen";
+import VideoScreen from "./VideoScreen.js";
 
 const Tab = createBottomTabNavigator();
 
@@ -94,7 +94,7 @@ const CustomHeader = ({ navigation }) => {
   );
 };
 
-const AudioScreen = () => {
+const GalleryScreen = () => {
   return (
     <Tab.Navigator
       screenOptions={{
@@ -106,12 +106,12 @@ const AudioScreen = () => {
       }}
     >
       <Tab.Screen
-        name="Microphone"
-        component={MicrophoneScreen}
+        name="Camera"
+        component={CameraScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
             <FontAwesome5
-              name="microphone-alt"
+              name="camera"
               size={size}
               color={color}
               solid
@@ -121,11 +121,20 @@ const AudioScreen = () => {
       />
 
       <Tab.Screen
-        name="Recordings"
-        component={RecordingsScreen}
+        name="Photos"
+        component={PhotoScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <FontAwesome5 name="file-audio" size={size} color={color} solid />
+            <FontAwesome5 name="image" size={size} color={color} solid />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Videos"
+        component={VideoScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <FontAwesome5 name="film" size={size} color={color} solid />
           ),
         }}
       />
@@ -133,4 +142,4 @@ const AudioScreen = () => {
   );
 };
 
-export default AudioScreen;
+export default GalleryScreen;

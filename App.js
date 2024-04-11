@@ -16,6 +16,9 @@ import MicrophoneScreen from "./screens/MicrophoneScreen";
 import RecordingsScreen from "./screens/RecordingsScreen";
 
 import GalleryScreen from "./screens/GalleryScreen"
+import CameraScreen from "./screens/CameraScreen.js";
+import PhotoScreen from "./screens/PhotoScreen.js";
+import VideoScreen from "./screens/VideoScreen.js";
 
 import SettingsScreen from "./screens/SettingsScreen";
 import HelpSupportScreen from "./screens/HelpSupportScreen";
@@ -76,6 +79,21 @@ const App = () => {
           <Stack.Screen
             name="GalleryScreen"
             component={GalleryScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="CameraScreen"
+            component={CameraScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="PhotoScreen"
+            component={PhotoScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="VideoScreen"
+            component={VideoScreen}
             options={{ headerShown: false }}
           />
           <Stack.Screen

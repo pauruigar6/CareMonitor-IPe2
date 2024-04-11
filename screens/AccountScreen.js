@@ -14,20 +14,19 @@ const AccountScreen = () => {
   });
 
   useEffect(() => {
-    // Obtener datos de Firestore
-    const fetchData = async () => {
+    const fetchUserData = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, "userInfo"));
-        querySnapshot.forEach((doc) => {
-          // Supongamos que solo hay un documento en la colección userInfo
-          setUserData(doc.data());
-        });
+        if (querySnapshot.docs.length > 0) {
+          const userData = querySnapshot.docs[0].data();
+          setUserData(userData); // Corregir aquí para establecer los datos del usuario
+        }
       } catch (error) {
         console.error("Error fetching user data from Firestore:", error);
       }
     };
 
-    fetchData();
+    fetchUserData();
   }, []);
 
   return (

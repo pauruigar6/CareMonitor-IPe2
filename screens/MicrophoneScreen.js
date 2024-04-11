@@ -126,7 +126,7 @@ const MicrophoneScreen = ({ navigation }) => {
 
         // Log para verificar que se ha creado el documento de audio
         console.log("Audio document written with ID: ", audioDocRef.id);
-
+        
         // Después de guardar la grabación, vuelve a cargar las grabaciones del usuario
         loadUserRecordings(userId);
       } catch (error) {
