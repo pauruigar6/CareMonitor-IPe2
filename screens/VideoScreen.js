@@ -44,14 +44,18 @@ const VideoScreen = () => {
   }, []);
 
   const clearVideos = async () => {
-    Alert.alert("Confirm Clear", "Are you sure you want to clear all videos?", [
-      {
-        text: "Cancel",
-        onPress: () => console.log("Clear Videos Cancelled"),
-        style: "cancel",
-      },
-      { text: "Clear", onPress: () => handleClearVideos() },
-    ]);
+    Alert.alert(
+      "Confirm Delete",
+      "Are you sure you want to delete all videos?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Delete Videos Cancelled"),
+          style: "cancel",
+        },
+        { text: "Delete", onPress: () => handleClearVideos() },
+      ]
+    );
   };
 
   const handleClearVideos = async () => {
@@ -67,7 +71,7 @@ const VideoScreen = () => {
       });
       setVideos([]);
     } catch (error) {
-      console.error("Error clearing videos from Firestore:", error);
+      console.error("Error deleting videos from Firestore:", error);
     }
   };
 
@@ -148,7 +152,7 @@ const VideoScreen = () => {
         <View style={styles.gallery}>{renderVideos()}</View>
         {videos.length > 0 && (
           <TouchableOpacity onPress={clearVideos} style={styles.clearButton}>
-            <Text style={styles.clearButtonText}>Clear Videos</Text>
+            <Text style={styles.clearButtonText}>Delete All Videos</Text>
           </TouchableOpacity>
         )}
       </ScrollView>

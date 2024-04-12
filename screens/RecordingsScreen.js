@@ -7,6 +7,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
   StyleSheet,
+  Alert,
 } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import appConfig from "../constants/appConfig";
@@ -56,24 +57,46 @@ const RecordingsScreen = () => {
     setExpandedIndex((prevIndex) => (prevIndex === index ? null : index));
   };
 
-  const handleClearRecordings = async () => {
-    try {
-      const user = auth.currentUser;
-      const userInfoRef = doc(db, "userInfo", user.uid);
-      const audioInfoCollectionRef = collection(userInfoRef, "audioInfo");
+  const handleClearRecordings = () => {
+    Alert.alert(
+      "Confirm Delete",
+      "Are you sure you want to delete all recordings?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          onPress: async () => {
+            try {
+              const user = auth.currentUser;
+              const userInfoRef = doc(db, "userInfo", user.uid);
+              const audioInfoCollectionRef = collection(
+                userInfoRef,
+                "audioInfo"
+              );
 
-      const querySnapshot = await getDocs(audioInfoCollectionRef);
+              const querySnapshot = await getDocs(audioInfoCollectionRef);
 
-      const deletePromises = querySnapshot.docs.map((doc) =>
-        deleteDoc(doc.ref)
-      );
-      await Promise.all(deletePromises);
+              const deletePromises = querySnapshot.docs.map((doc) =>
+                deleteDoc(doc.ref)
+              );
+              await Promise.all(deletePromises);
 
-      dispatch({ type: "CLEAR_ALL_RECORDINGS" });
-      setExpandedIndex(null);
-    } catch (error) {
-      console.error("Error clearing recordings:", error);
-    }
+              dispatch({ type: "CLEAR_ALL_RECORDINGS" });
+              setExpandedIndex(null);
+              console.log("Deleting all recordings...");
+              setSound([]);
+              // dispatch({ type: "CLEAR_ALL_RECORDINGS" });
+            } catch (error) {
+              console.error("Error deleting recordings:", error);
+            }
+          },
+        },
+      ]
+    );
   };
 
   return (
@@ -118,7 +141,7 @@ const RecordingsScreen = () => {
             onPress={handleClearRecordings}
             style={styles.clearButton}
           >
-            <Text style={styles.clearButtonText}>Clear Recordings</Text>
+            <Text style={styles.clearButtonText}>Delete All Recordings</Text>
           </TouchableOpacity>
         )}
       </ScrollView>
