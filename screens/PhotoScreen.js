@@ -1,3 +1,4 @@
+// PhotoScreen.js
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -116,7 +117,7 @@ const PhotoScreen = () => {
       style={{ flex: 1, backgroundColor: appConfig.COLORS.background }}
     >
       <ScrollView contentContainerStyle={styles.contentContainer}>
-        <Text style={styles.title}>Photo Gallery</Text>
+        <Text style={styles.title}>Photos</Text>
         <View style={styles.gallery}>{renderPhotos()}</View>
         {photos.length > 0 && (
           <TouchableOpacity onPress={clearPhotos} style={styles.clearButton}>

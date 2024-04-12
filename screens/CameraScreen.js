@@ -24,29 +24,25 @@ const CameraScreen = ({ navigation }) => {
       const { status } = await Camera.requestCameraPermissionsAsync();
       setHasPermission(status === "granted");
     })();
-    
-    const initializeCamera = async () => {
-      const camera = await cameraRef?.current;
-      if (camera) {
-        try {
-          await camera.unlockAsync();
-        } catch (error) {
-          console.error("Error unlocking camera:", error);
-        }
-      }
-    };
-  
-    if (cameraRef) {
-      initializeCamera();
-    }
   }, [cameraRef]);
+
+  const initializeCamera = async () => {
+    if (cameraRef && cameraRef.current) {
+      const camera = cameraRef.current;
+      try {
+        await camera.unlockAsync();
+      } catch (error) {
+        console.error("Error unlocking camera:", error);
+      }
+    }
+  };
 
   const toggleMode = () => {
     setMode((prevMode) => (prevMode === "photo" ? "video" : "photo"));
   };
 
   const takePicture = async () => {
-    console.log("takePicture"); // Agregar mensaje de depuración
+    console.log("takePicture");
     if (cameraRef && mode === "photo") {
       try {
         const photo = await cameraRef.takePictureAsync();
@@ -58,36 +54,21 @@ const CameraScreen = ({ navigation }) => {
   };
 
   const startRecording = async () => {
-    console.log("Recording started 1"); // Agregar mensaje de depuración
     if (cameraRef && mode === "video") {
-      console.log("Recording started 2"); // Agregar mensaje de depuración
       try {
-        console.log("Recording started 3"); // Agregar mensaje de depuración
-        const data = await cameraRef.current.recordAsync();
-        console.log("Recording started 4"); // Agregar mensaje de depuración
         setIsRecording(true);
-
-        Alert.alert("Recording started");
+        const { uri } = await cameraRef.recordAsync();
+        saveMedia(uri);
       } catch (error) {
         console.error("Error starting recording:", error);
       }
     }
   };
 
-  const stopRecording = async () => {
-    console.log("Recording stopped 1"); // Agregar mensaje de depuración
-
-    if (cameraRef && isRecording && mode === "video") {
-      console.log("Recording stopped 2"); // Agregar mensaje de depuración
-      try {
-        await cameraRef.current.stopRecording();
-        saveMedia(startRecording.data.uri);
-        setIsRecording(false);
-        console.log("Recording stopped 3"); // Agregar mensaje de depuración
-        Alert.alert("Recording stopped");
-      } catch (error) {
-        console.error("Error stopping recording:", error);
-      }
+  const stopRecording = () => {
+    if (isRecording) {
+      cameraRef.stopRecording();
+      setIsRecording(false);
     }
   };
 
@@ -99,7 +80,6 @@ const CameraScreen = ({ navigation }) => {
         timestamp: serverTimestamp(),
       };
 
-      // Construir la referencia a la subcolección
       const userInfoRef = doc(db, "userInfo", auth.currentUser.uid);
       const mediaRef = collection(
         userInfoRef,
@@ -125,7 +105,12 @@ const CameraScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Camera
-        ref={(ref) => setCameraRef(ref)}
+        ref={(ref) => {
+          setCameraRef(ref);
+          if (ref) {
+            initializeCamera();
+          }
+        }}
         style={styles.camera}
         type={Camera.Constants.Type.back}
         flashMode={Camera.Constants.FlashMode.auto}
@@ -137,6 +122,7 @@ const CameraScreen = ({ navigation }) => {
           {mode === "photo" ? "Video" : "Photo"}
         </Text>
       </TouchableOpacity>
+
       {mode === "photo" ? (
         <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
           <FontAwesome5 name="camera" style={styles.icon} />
