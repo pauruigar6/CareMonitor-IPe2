@@ -15,6 +15,7 @@ import { collection, onSnapshot, getDocs, deleteDoc } from "firebase/firestore";
 import { MaterialIcons } from "@expo/vector-icons";
 import * as FileSystem from "expo-file-system";
 import * as MediaLibrary from "expo-media-library";
+import { Video } from "expo-av";
 
 const VideoScreen = () => {
   const [videos, setVideos] = useState([]);
@@ -106,7 +107,12 @@ const VideoScreen = () => {
   const renderVideos = () => {
     return videos.map((video, index) => (
       <TouchableOpacity key={index} onPress={() => handleVideoPress(index)}>
-        <Text style={styles.video}>{video.id}</Text>
+        <Video
+          source={{ uri: video.uri }}
+          style={styles.videoPreview}
+          resizeMode="cover"
+          useNativeControls={true}
+        />
       </TouchableOpacity>
     ));
   };
@@ -142,16 +148,11 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     justifyContent: "flex-start",
   },
-  video: {
+  videoPreview: {
     width: 220,
     height: 220,
     margin: 10,
     borderRadius: 10,
-    backgroundColor: "gray",
-    textAlign: "center",
-    lineHeight: 220,
-    color: "white",
-    fontSize: 16,
   },
   clearButton: {
     backgroundColor: appConfig.COLORS.primary,
