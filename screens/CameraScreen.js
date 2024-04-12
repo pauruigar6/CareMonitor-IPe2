@@ -1,4 +1,3 @@
-// CameraScreen.js
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
@@ -18,6 +17,7 @@ const CameraScreen = ({ navigation }) => {
   const [cameraRef, setCameraRef] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
   const [mode, setMode] = useState("photo");
+  const [cameraType, setCameraType] = useState(Camera.Constants.Type.back);
 
   useEffect(() => {
     (async () => {
@@ -39,6 +39,14 @@ const CameraScreen = ({ navigation }) => {
 
   const toggleMode = () => {
     setMode((prevMode) => (prevMode === "photo" ? "video" : "photo"));
+  };
+
+  const toggleCameraType = () => {
+    setCameraType(
+      cameraType === Camera.Constants.Type.back
+        ? Camera.Constants.Type.front
+        : Camera.Constants.Type.back
+    );
   };
 
   const takePicture = async () => {
@@ -112,7 +120,7 @@ const CameraScreen = ({ navigation }) => {
           }
         }}
         style={styles.camera}
-        type={Camera.Constants.Type.back}
+        type={cameraType}
         flashMode={Camera.Constants.FlashMode.auto}
         ratio="16:9"
       />
@@ -121,6 +129,10 @@ const CameraScreen = ({ navigation }) => {
         <Text style={styles.modeText}>
           {mode === "photo" ? "Video" : "Photo"}
         </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.flipButton} onPress={toggleCameraType}>
+        <FontAwesome5 name="sync" style={styles.icon} />
       </TouchableOpacity>
 
       {mode === "photo" ? (
@@ -165,6 +177,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: appConfig.COLORS.white,
   },
+  flipButton: {
+    position: "absolute",
+    top: 40,
+    right: 20,
+    backgroundColor: appConfig.COLORS.primary,
+    borderRadius: 50,
+    padding: 10,
+  },
   captureButton: {
     position: "absolute",
     bottom: 40,
@@ -174,7 +194,7 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   icon: {
-    fontSize: 40,
+    fontSize: 20,
     color: appConfig.COLORS.white,
   },
 });
