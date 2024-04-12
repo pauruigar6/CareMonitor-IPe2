@@ -84,13 +84,27 @@ const VideoScreen = () => {
   };
 
   const handleDeleteVideo = async (index) => {
+    Alert.alert(
+      "Confirm Delete",
+      "Are you sure you want to delete this video?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Delete Video Cancelled"),
+          style: "cancel",
+        },
+        { text: "Delete", onPress: () => confirmDeleteVideo(index) },
+      ]
+    );
+  };
+
+  const confirmDeleteVideo = async (index) => {
     try {
       const videoToDelete = videos[index];
       await deleteDoc(
         doc(db, "userInfo", auth.currentUser.uid, "videoInfo", videoToDelete.id)
       );
       setVideos(videos.filter((video, i) => i !== index));
-      //Alert.alert("Success", "Video deleted successfully.");
     } catch (error) {
       console.error("Error deleting video:", error);
       Alert.alert("Error", "An error occurred while deleting the video.");
@@ -98,35 +112,38 @@ const VideoScreen = () => {
   };
 
   const handleSaveVideo = async (index) => {
-    try {
-      const videoToSave = videos[index];
-      const fileUri = videoToSave.uri;
-      const downloadDirectory = FileSystem.documentDirectory + "downloads/";
-      const directoryInfo = await FileSystem.getInfoAsync(downloadDirectory);
-      if (!directoryInfo.exists) {
-        await FileSystem.makeDirectoryAsync(downloadDirectory, {
-          intermediates: true,
+    const saveConfirmed = await promptForConfirmation();
+    if (saveConfirmed) {
+      try {
+        const videoToSave = videos[index];
+        const fileUri = videoToSave.uri;
+        const downloadDirectory = FileSystem.documentDirectory + "downloads/";
+        const directoryInfo = await FileSystem.getInfoAsync(downloadDirectory);
+        if (!directoryInfo.exists) {
+          await FileSystem.makeDirectoryAsync(downloadDirectory, {
+            intermediates: true,
+          });
+        }
+        const fileName = "downloaded_video.mp4";
+        const destinationUri = downloadDirectory + fileName;
+        await FileSystem.copyAsync({
+          from: fileUri,
+          to: destinationUri,
         });
+        await MediaLibrary.saveToLibraryAsync(destinationUri);
+        Alert.alert(
+          "Download Complete",
+          "The video has been saved to your device gallery.",
+          [{ text: "OK" }]
+        );
+      } catch (error) {
+        console.error("Error saving video:", error);
+        Alert.alert(
+          "Error",
+          "Failed to save the video. Please try again later.",
+          [{ text: "OK" }]
+        );
       }
-      const fileName = "downloaded_video.mp4";
-      const destinationUri = downloadDirectory + fileName;
-      await FileSystem.copyAsync({
-        from: fileUri,
-        to: destinationUri,
-      });
-      await MediaLibrary.saveToLibraryAsync(destinationUri);
-      Alert.alert(
-        "Download Complete",
-        "The video has been saved to your device gallery.",
-        [{ text: "OK" }]
-      );
-    } catch (error) {
-      console.error("Error saving video:", error);
-      Alert.alert(
-        "Error",
-        "Failed to save the video. Please try again later.",
-        [{ text: "OK" }]
-      );
     }
   };
 

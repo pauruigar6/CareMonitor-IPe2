@@ -84,6 +84,21 @@ const PhotoScreen = () => {
   };
 
   const handleDeletePhoto = async (index) => {
+    Alert.alert(
+      "Confirm Delete",
+      "Are you sure you want to delete this photo?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Delete Photo Cancelled"),
+          style: "cancel",
+        },
+        { text: "Delete", onPress: () => confirmDeletePhoto(index) },
+      ]
+    );
+  };
+
+  const confirmDeletePhoto = async (index) => {
     try {
       const photoToDelete = photos[index];
       await deleteDoc(
