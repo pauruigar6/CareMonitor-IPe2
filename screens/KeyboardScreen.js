@@ -8,7 +8,6 @@ import {
   StyleSheet,
   ScrollView,
   SafeAreaView,
-  Alert,
 } from "react-native";
 import appConfig from "../constants/appConfig";
 import {
@@ -23,11 +22,10 @@ import {
 
 const KeyboardScreen = () => {
   const [notes, setNotes] = useState([]);
-  const [showAddNoteContainer, setShowAddNoteContainer] = useState(false);
-  const [buttonText, setButtonText] = useState("Add Note");
-
   const [newNoteTitle, setNewNoteTitle] = useState("");
   const [newNoteContent, setNewNoteContent] = useState("");
+  const [titleError, setTitleError] = useState("");
+  const [contentError, setContentError] = useState("");
 
   useEffect(() => {
     const fetchNotes = async () => {
@@ -47,43 +45,45 @@ const KeyboardScreen = () => {
     fetchNotes();
   }, []);
 
-  const handleNoteAction = async () => {
-    if (buttonText === "Add Note") {
-      setShowAddNoteContainer(true);
-      setButtonText("Save Note");
-    } else {
-      await handleAddNote();
-      setShowAddNoteContainer(false);
-      setButtonText("Add Note");
-    }
-  };
-
   const handleAddNote = async () => {
+    setTitleError("");
+    setContentError("");
+
+    let hasError = false;
+    if (newNoteTitle.trim() === "") {
+      setTitleError("Title is required.");
+      hasError = true;
+    }
+    if (newNoteContent.trim() === "") {
+      setContentError("Content is required.");
+      hasError = true;
+    }
+
+    if (hasError) return;
+
     try {
-      if (newNoteTitle.trim() !== "" && newNoteContent.trim() !== "") {
-        const mediaData = {
-          title: newNoteTitle.trim(),
-          content: newNoteContent.trim(),
-          timestamp: new Date().toISOString(),
-        };
+      const mediaData = {
+        title: newNoteTitle.trim(),
+        content: newNoteContent.trim(),
+        timestamp: new Date().toISOString(),
+      };
 
-        const userInfoRef = doc(db, "userInfo", auth.currentUser.uid);
-        const textInfoRef = collection(userInfoRef, "textInfo");
+      const userInfoRef = doc(db, "userInfo", auth.currentUser.uid);
+      const textInfoRef = collection(userInfoRef, "textInfo");
 
-        await addDoc(textInfoRef, mediaData);
+      await addDoc(textInfoRef, mediaData);
 
-        const newNote = {
-          id: Math.random().toString(),
-          title: newNoteTitle.trim(),
-          content: newNoteContent.trim(),
-        };
-        setNotes([...notes, newNote]);
-        setNewNoteTitle("");
-        setNewNoteContent("");
-      }
+      const newNote = {
+        id: Math.random().toString(),
+        title: newNoteTitle.trim(),
+        content: newNoteContent.trim(),
+      };
+      setNotes([...notes, newNote]);
+      setNewNoteTitle("");
+      setNewNoteContent("");
     } catch (error) {
       console.error("Error saving note:", error);
-      Alert.alert("Error", "An error occurred while saving the note.");
+      // Handle error saving note
     }
   };
 
@@ -93,37 +93,34 @@ const KeyboardScreen = () => {
         <Text style={{ ...appConfig.FONTS.h1, color: appConfig.COLORS.black }}>
           New Note
         </Text>
-        {showAddNoteContainer && (
-          <View style={styles.newNoteContainer}>
-            <TextInput
-              style={styles.newNoteTitleInput}
-              placeholder="Title"
-              value={newNoteTitle}
-              onChangeText={setNewNoteTitle}
-            />
-            <TextInput
-              style={styles.newNoteContentInput}
-              placeholder="Type something..."
-              multiline
-              value={newNoteContent}
-              onChangeText={setNewNoteContent}
-            />
-            <TouchableOpacity
-              style={styles.addNoteButton}
-              onPress={handleNoteAction}
-            >
-              <Text style={styles.addNoteButtonText}>{buttonText}</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-        {!showAddNoteContainer && (
+
+        <View style={styles.newNoteContainer}>
+          <TextInput
+            style={styles.newNoteTitleInput}
+            placeholder="Title"
+            value={newNoteTitle}
+            onChangeText={setNewNoteTitle}
+          />
+          {titleError ? (
+            <Text style={styles.errorText}>{titleError}</Text>
+          ) : null}
+          <TextInput
+            style={styles.newNoteContentInput}
+            placeholder="Type something..."
+            multiline
+            value={newNoteContent}
+            onChangeText={setNewNoteContent}
+          />
+          {contentError ? (
+            <Text style={styles.errorText}>{contentError}</Text>
+          ) : null}
           <TouchableOpacity
-            style={styles.addNoteButtonCenter}
-            onPress={handleNoteAction}
+            style={styles.addNoteButton}
+            onPress={handleAddNote}
           >
-            <Text style={styles.addNoteButtonText}>{buttonText}</Text>
+            <Text style={styles.addNoteButtonText}>Save Note</Text>
           </TouchableOpacity>
-        )}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -138,7 +135,9 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   newNoteContainer: {
+    marginTop: 250,
     width: "100%",
+    padding: 16,
   },
   newNoteTitleInput: {
     borderBottomWidth: 1,
@@ -159,21 +158,17 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 10,
     alignSelf: "center",
-    marginTop: 40,
-    marginBottom: 20,
-  },
-  addNoteButtonCenter: {
-    backgroundColor: appConfig.COLORS.primary,
-    borderRadius: 8,
-    padding: 10,
-    alignSelf: "center",
-    marginTop: 40,
+    marginTop: 20,
     marginBottom: 20,
   },
   addNoteButtonText: {
     color: "white",
     fontSize: 16,
     textAlign: "center",
+  },
+  errorText: {
+    color: "red",
+    marginBottom: 8,
   },
 });
 
