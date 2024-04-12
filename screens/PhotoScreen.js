@@ -1,4 +1,3 @@
-// PhotoScreen.js
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -8,12 +7,14 @@ import {
   Image,
   StyleSheet,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import appConfig from "../constants/appConfig";
 import { db, auth } from "../utils/firebase-config";
 import { collection, onSnapshot, getDocs, deleteDoc } from "firebase/firestore";
-import ImageViewer from "react-native-image-zoom-viewer";
 import { MaterialIcons } from "@expo/vector-icons";
+import * as FileSystem from "expo-file-system"; // Importa FileSystem desde expo-file-system
+import * as MediaLibrary from "expo-media-library";
 
 const PhotoScreen = () => {
   const [photos, setPhotos] = useState([]);
@@ -52,8 +53,52 @@ const PhotoScreen = () => {
     }
   };
 
-  const handleImagePress = (index) => {
-    setCurrentImageIndex(index);
+  const handleImagePress = async (index) => {
+    try {
+      // Obtener la ruta de archivo de la imagen desde Firestore
+      const fileUri = photos[index].uri;
+  
+      // Directorio de descargas en el dispositivo
+      const downloadDirectory = FileSystem.documentDirectory + "downloads/";
+  
+      // Verificar si el directorio de descargas existe, si no, crearlo
+      const directoryInfo = await FileSystem.getInfoAsync(downloadDirectory);
+      if (!directoryInfo.exists) {
+        await FileSystem.makeDirectoryAsync(downloadDirectory, {
+          intermediates: true,
+        });
+      }
+  
+      // Nombre del archivo descargado
+      const fileName = "downloaded_photo.jpg";
+  
+      // Ruta de destino para la descarga
+      const destinationUri = downloadDirectory + fileName;
+  
+      // Copiar el archivo desde su ubicación actual a la ubicación de descargas
+      await FileSystem.copyAsync({
+        from: fileUri,
+        to: destinationUri,
+      });
+  
+      // Guardar la imagen en la galería
+      await MediaLibrary.saveToLibraryAsync(destinationUri);
+  
+      // Mostrar un mensaje de éxito
+      Alert.alert(
+        "Download Complete",
+        "The image has been saved to your device gallery.",
+        [{ text: "OK" }]
+      );
+    } catch (error) {
+      console.error("Error downloading image:", error);
+      // Mostrar un mensaje de error en caso de falla
+      Alert.alert(
+        "Error",
+        "Failed to download the image. Please try again later.",
+        [{ text: "OK" }]
+      );
+    }
   };
 
   const renderPhotos = () => {
@@ -76,25 +121,25 @@ const PhotoScreen = () => {
             <Text style={styles.clearButtonText}>Clear Photos</Text>
           </TouchableOpacity>
         )}
-      
-      {currentImageIndex !== null && (
-        <View style={styles.fullScreenContainer}>
-          <ImageViewer
-            imageUrls={photos.map((photo) => ({ url: photo.uri }))}
-            index={currentImageIndex}
-            enableSwipeDown
-            renderHeader={() => (
-              <TouchableOpacity
-                style={styles.closeButton}
-                onPress={() => setCurrentImageIndex(null)}
-              >
-                <MaterialIcons name="close" size={24} color="white" />
-              </TouchableOpacity>
-            )}
-            style={styles.imageViewer}
-          />
-        </View>
-      )}
+
+        {currentImageIndex !== null && (
+          <View style={styles.fullScreenContainer}>
+            <View
+              imageUrls={photos.map((photo) => ({ url: photo.uri }))}
+              index={currentImageIndex}
+              enableSwipeDown
+              renderHeader={() => (
+                <TouchableOpacity
+                  style={styles.closeButton}
+                  onPress={() => setCurrentImageIndex(null)}
+                >
+                  <MaterialIcons name="close" size={24} color="white" />
+                </TouchableOpacity>
+              )}
+              style={styles.imageViewer}
+            />
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -148,5 +193,19 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
 });
+
+// Función para mostrar un mensaje de confirmación al usuario
+const promptForConfirmation = () => {
+  return new Promise((resolve) => {
+    Alert.alert(
+      "Confirmation",
+      "Do you want to save the image to your device?",
+      [
+        { text: "Cancel", onPress: () => resolve(false), style: "cancel" },
+        { text: "Save", onPress: () => resolve(true) },
+      ]
+    );
+  });
+};
 
 export default PhotoScreen;
