@@ -66,6 +66,20 @@ const NotesScreen = () => {
   };
 
   const handleEditNote = (noteId) => {
+    // Muestra opciones para editar o eliminar la nota
+    Alert.alert(
+      "What would you like to do with this note",
+      "",
+      [
+        { text: "Edit Note", onPress: () => handleEditOption(noteId) },
+        { text: "Delete Note", onPress: () => confirmDeleteNote(noteId) },
+        { text: "Cancel", style: "cancel" },
+      ],
+      { cancelable: true }
+    );
+  };
+
+  const handleEditOption = (noteId) => {
     const selectedNote = notes.find((note) => note.id === noteId);
     setEditingNoteId(noteId);
     setEditedNoteTitle(selectedNote.title);
@@ -88,7 +102,7 @@ const NotesScreen = () => {
       setEditingNoteId(null);
       setEditedNoteTitle("");
       setEditedNoteContent("");
-      
+
       // Aquí puedes guardar los cambios en Firestore si es necesario
     } catch (error) {
       console.error("Error saving edited note:", error);
@@ -122,9 +136,9 @@ const NotesScreen = () => {
         {
           text: "Cancel",
           onPress: () => console.log("Cancel Pressed"),
-          style: "cancel"
+          style: "cancel",
         },
-        { text: "Delete", onPress: () => handleDeleteNote(noteId) }
+        { text: "Delete", onPress: () => handleDeleteNote(noteId) },
       ],
       { cancelable: false }
     );
@@ -138,9 +152,9 @@ const NotesScreen = () => {
         {
           text: "Cancel",
           onPress: () => console.log("Cancel Pressed"),
-          style: "cancel"
+          style: "cancel",
         },
-        { text: "Delete All", onPress: handleDeleteAllNotes }
+        { text: "Delete All", onPress: handleDeleteAllNotes },
       ],
       { cancelable: false }
     );
@@ -148,7 +162,11 @@ const NotesScreen = () => {
 
   const renderNotes = () => {
     return notes.map((note) => (
-      <TouchableOpacity key={note.id} style={styles.note} onPress={() => handleEditNote(note.id)}>
+      <TouchableOpacity
+        key={note.id}
+        style={styles.note}
+        onPress={() => handleEditNote(note.id)}
+      >
         {editingNoteId === note.id ? (
           <View>
             <TextInput
@@ -163,13 +181,22 @@ const NotesScreen = () => {
               multiline
             />
             <View style={styles.editButtonsContainer}>
-              <TouchableOpacity onPress={handleSaveEditedNote} style={styles.saveButton}>
+              <TouchableOpacity
+                onPress={handleSaveEditedNote}
+                style={styles.saveButton}
+              >
                 <Text style={styles.saveButtonText}>Save</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={handleCancelEdit} style={styles.cancelButton}>
+              <TouchableOpacity
+                onPress={handleCancelEdit}
+                style={styles.cancelButton}
+              >
                 <Text style={styles.cancelButtonText}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => confirmDeleteNote(note.id)} style={styles.deleteNoteButton}>
+              <TouchableOpacity
+                onPress={() => confirmDeleteNote(note.id)}
+                style={styles.deleteNoteButton}
+              >
                 <Text style={styles.deleteNoteButtonText}>Delete Note</Text>
               </TouchableOpacity>
             </View>
@@ -266,11 +293,11 @@ const styles = StyleSheet.create({
     width: "30%",
   },
   saveButtonText: {
-  color: appConfig.COLORS.primary,
+    color: appConfig.COLORS.primary,
     textAlign: "center",
   },
   cancelButtonText: {
-  color: appConfig.COLORS.primary,
+    color: appConfig.COLORS.primary,
     textAlign: "center",
   },
   deleteNoteButtonText: {
