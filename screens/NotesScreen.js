@@ -1,4 +1,3 @@
-// NotesScreen.js
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -28,6 +27,9 @@ const NotesScreen = () => {
 
   const [newNoteTitle, setNewNoteTitle] = useState("");
   const [newNoteContent, setNewNoteContent] = useState("");
+  const [editingNoteId, setEditingNoteId] = useState(null);
+  const [editedNoteTitle, setEditedNoteTitle] = useState("");
+  const [editedNoteContent, setEditedNoteContent] = useState("");
 
   useEffect(() => {
     const unsubscribe = onSnapshot(
@@ -50,47 +52,155 @@ const NotesScreen = () => {
       const userInfoRef = doc(db, "userInfo", auth.currentUser.uid);
       const textInfoRef = collection(userInfoRef, "textInfo");
 
-      // Delete all notes in the 'textInfo' collection
       const snapshot = await getDocs(textInfoRef);
       snapshot.forEach(async (doc) => {
         await deleteDoc(doc.ref);
       });
 
-      setNotes([]); // Clear the notes array
-      //Alert.alert("Notes Deleted", "All notes have been deleted successfully.");
+      setNotes([]);
     } catch (error) {
       console.error("Error deleting notes:", error);
       Alert.alert("Error", "An error occurred while deleting the notes.");
     }
   };
 
+  const handleEditNote = (noteId) => {
+    const selectedNote = notes.find((note) => note.id === noteId);
+    setEditingNoteId(noteId);
+    setEditedNoteTitle(selectedNote.title);
+    setEditedNoteContent(selectedNote.content);
+  };
+
+  const handleSaveEditedNote = async () => {
+    try {
+      const updatedNotes = notes.map((note) => {
+        if (note.id === editingNoteId) {
+          return {
+            ...note,
+            title: editedNoteTitle,
+            content: editedNoteContent,
+          };
+        }
+        return note;
+      });
+      setNotes(updatedNotes);
+      setEditingNoteId(null);
+      setEditedNoteTitle("");
+      setEditedNoteContent("");
+      
+      // Aquí puedes guardar los cambios en Firestore si es necesario
+    } catch (error) {
+      console.error("Error saving edited note:", error);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingNoteId(null);
+    setEditedNoteTitle("");
+    setEditedNoteContent("");
+  };
+
+  const handleDeleteNote = async (noteId) => {
+    try {
+      const userInfoRef = doc(db, "userInfo", auth.currentUser.uid);
+      const textInfoRef = collection(userInfoRef, "textInfo");
+      await deleteDoc(doc(textInfoRef, noteId));
+
+      setNotes(notes.filter((note) => note.id !== noteId));
+    } catch (error) {
+      console.error("Error deleting note:", error);
+      Alert.alert("Error", "An error occurred while deleting the note.");
+    }
+  };
+
+  const confirmDeleteNote = (noteId) => {
+    Alert.alert(
+      "Confirm Delete",
+      "Are you sure you want to delete this note?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel"
+        },
+        { text: "Delete", onPress: () => handleDeleteNote(noteId) }
+      ],
+      { cancelable: false }
+    );
+  };
+
+  const confirmDeleteAllNotes = () => {
+    Alert.alert(
+      "Confirm Delete All",
+      "Are you sure you want to delete all notes?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel"
+        },
+        { text: "Delete All", onPress: handleDeleteAllNotes }
+      ],
+      { cancelable: false }
+    );
+  };
+
   const renderNotes = () => {
     return notes.map((note) => (
-      <TouchableOpacity key={note.id} style={styles.note}>
-        <Text style={styles.noteTitle}>{note.title}</Text>
-        <Text style={styles.noteContent}>{note.content}</Text>
+      <TouchableOpacity key={note.id} style={styles.note} onPress={() => handleEditNote(note.id)}>
+        {editingNoteId === note.id ? (
+          <View>
+            <TextInput
+              style={styles.noteTitleInput}
+              value={editedNoteTitle}
+              onChangeText={setEditedNoteTitle}
+            />
+            <TextInput
+              style={styles.noteContentInput}
+              value={editedNoteContent}
+              onChangeText={setEditedNoteContent}
+              multiline
+            />
+            <View style={styles.editButtonsContainer}>
+              <TouchableOpacity onPress={handleSaveEditedNote} style={styles.saveButton}>
+                <Text style={styles.saveButtonText}>Save</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleCancelEdit} style={styles.cancelButton}>
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => confirmDeleteNote(note.id)} style={styles.deleteNoteButton}>
+                <Text style={styles.deleteNoteButtonText}>Delete Note</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ) : (
+          <View>
+            <Text style={styles.noteTitle}>{note.title}</Text>
+            <Text style={styles.noteContent}>{note.content}</Text>
+          </View>
+        )}
       </TouchableOpacity>
     ));
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.contentContainer}>
         <Text style={{ ...appConfig.FONTS.h1, color: appConfig.COLORS.black }}>
           My Notes
         </Text>
         {renderNotes()}
-
-        {notes.length > 0 && (
-          <TouchableOpacity
-            style={styles.deleteAllButton}
-            onPress={handleDeleteAllNotes}
-          >
-            <Text style={styles.deleteAllButtonText}>Delete All Notes</Text>
-          </TouchableOpacity>
-        )}
       </ScrollView>
-    </SafeAreaView>
+
+      {notes.length > 0 && (
+        <TouchableOpacity
+          style={styles.deleteAllButton}
+          onPress={confirmDeleteAllNotes}
+        >
+          <Text style={styles.deleteAllButtonText}>Delete All Notes</Text>
+        </TouchableOpacity>
+      )}
+    </View>
   );
 };
 
@@ -101,6 +211,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     padding: 16,
+    paddingBottom: 80, // Adjusted padding to make space for the button
   },
   note: {
     backgroundColor: "white",
@@ -119,19 +230,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#666",
   },
-  newNoteContainer: {
-    backgroundColor: "white",
-    borderRadius: 10,
-    marginBottom: 16,
-    padding: 16,
-    elevation: 3,
-  },
-  newNoteTitleInput: {
+  noteTitleInput: {
     borderBottomWidth: 1,
     borderBottomColor: "#ccc",
     marginBottom: 8,
   },
-  newNoteContentInput: {
+  noteContentInput: {
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 5,
@@ -140,28 +244,52 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     textAlignVertical: "top",
   },
-  addNoteButton: {
-    backgroundColor: appConfig.COLORS.primary,
-    borderRadius: 8,
-    padding: 10,
-    alignSelf: "center",
-    marginTop: 40,
-    marginBottom: 20,
+  editButtonsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 8,
   },
-  addNoteButtonText: {
-    color: "white",
-    fontSize: 16,
+  saveButton: {
+    borderRadius: 5,
+    padding: 8,
+    width: "30%",
+  },
+  cancelButton: {
+    borderRadius: 5,
+    padding: 8,
+    width: "30%",
+  },
+  deleteNoteButton: {
+    borderRadius: 5,
+    padding: 8,
+    width: "30%",
+  },
+  saveButtonText: {
+  color: appConfig.COLORS.primary,
+    textAlign: "center",
+  },
+  cancelButtonText: {
+  color: appConfig.COLORS.primary,
+    textAlign: "center",
+  },
+  deleteNoteButtonText: {
+    color: "red",
+    textAlign: "center",
   },
   deleteAllButton: {
-    backgroundColor: "#ff4444",
+    position: "absolute",
+    bottom: 20,
+    left: 300,
+    right: 300,
     borderRadius: 8,
     padding: 10,
     alignSelf: "center",
-    marginBottom: 20,
+    marginBottom: 30,
   },
   deleteAllButtonText: {
-    color: "white",
+    color: "red",
     fontSize: 16,
+    textAlign: "center",
   },
 });
 

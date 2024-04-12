@@ -1,4 +1,3 @@
-// KeyboardScreen.js
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -87,6 +86,13 @@ const KeyboardScreen = () => {
     }
   };
 
+  const handleCancelNote = () => {
+    setNewNoteTitle("");
+    setNewNoteContent("");
+    setTitleError("");
+    setContentError("");
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.contentContainer}>
@@ -114,12 +120,20 @@ const KeyboardScreen = () => {
           {contentError ? (
             <Text style={styles.errorText}>{contentError}</Text>
           ) : null}
-          <TouchableOpacity
-            style={styles.addNoteButton}
-            onPress={handleAddNote}
-          >
-            <Text style={styles.addNoteButtonText}>Save Note</Text>
-          </TouchableOpacity>
+          <View style={styles.buttonsContainer}>
+            <TouchableOpacity
+              style={styles.cancelNoteButton}
+              onPress={handleCancelNote}
+            >
+              <Text style={styles.cancelNoteButtonText}>Cancel Note</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.addNoteButton}
+              onPress={handleAddNote}
+            >
+              <Text style={styles.addNoteButtonText}>Save Note</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -135,7 +149,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   newNoteContainer: {
-    marginTop: 250,
+    marginTop: 100,
     width: "100%",
     padding: 16,
   },
@@ -148,21 +162,37 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 5,
-    minHeight: 100,
+    height: 500,
     padding: 8,
     marginBottom: 8,
     textAlignVertical: "top",
   },
+  buttonsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
   addNoteButton: {
+    marginTop: 20,
     backgroundColor: appConfig.COLORS.primary,
     borderRadius: 8,
     padding: 10,
-    alignSelf: "center",
+    width: "45%",
+  },
+  cancelNoteButton: {
     marginTop: 20,
-    marginBottom: 20,
+    backgroundColor: appConfig.COLORS.red,
+    borderRadius: 8,
+    padding: 10,
+    width: "45%",
   },
   addNoteButtonText: {
     color: "white",
+    fontSize: 16,
+    textAlign: "center",
+  },
+  cancelNoteButtonText: {
+    color: "red",
     fontSize: 16,
     textAlign: "center",
   },
