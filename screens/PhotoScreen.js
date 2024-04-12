@@ -12,9 +12,15 @@ import {
 } from "react-native";
 import appConfig from "../constants/appConfig";
 import { db, auth } from "../utils/firebase-config";
-import { collection, onSnapshot, getDocs, deleteDoc } from "firebase/firestore";
+import {
+  collection,
+  onSnapshot,
+  getDocs,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
 import { MaterialIcons } from "@expo/vector-icons";
-import * as FileSystem from "expo-file-system"; // Importa FileSystem desde expo-file-system
+import * as FileSystem from "expo-file-system";
 import * as MediaLibrary from "expo-media-library";
 
 const PhotoScreen = () => {
@@ -38,6 +44,21 @@ const PhotoScreen = () => {
   }, []);
 
   const clearPhotos = async () => {
+    Alert.alert(
+      "Confirm Delete",
+      "Are you sure you want to delete all photos?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Delete Photos Cancelled"),
+          style: "cancel",
+        },
+        { text: "Delete", onPress: () => handleClearPhotos() },
+      ]
+    );
+  };
+
+  const handleClearPhotos = async () => {
     try {
       const userInfoSnapshot = await getDocs(collection(db, "userInfo"));
       userInfoSnapshot.forEach(async (userInfoDoc) => {
@@ -50,55 +71,60 @@ const PhotoScreen = () => {
       });
       setPhotos([]);
     } catch (error) {
-      console.error("Error clearing photos from Firestore:", error);
+      console.error("Error deleting photos from Firestore:", error);
     }
   };
 
-  const handleImagePress = async (index) => {
+  const handleImagePress = (index) => {
+    Alert.alert("Photo Options", "What would you like to do with this photo?", [
+      { text: "Delete Photo", onPress: () => handleDeletePhoto(index) },
+      { text: "Save Photo", onPress: () => handleSavePhoto(index) },
+      { text: "Cancel", style: "cancel" },
+    ]);
+  };
+
+  const handleDeletePhoto = async (index) => {
     try {
-      const confirmed = await promptForConfirmation();
-      if (!confirmed) return; // Si el usuario cancela, salir de la función
-      // Obtener la ruta de archivo de la imagen desde Firestore
-      const fileUri = photos[index].uri;
+      const photoToDelete = photos[index];
+      await deleteDoc(
+        doc(db, "userInfo", auth.currentUser.uid, "photoInfo", photoToDelete.id)
+      );
+      setPhotos(photos.filter((photo, i) => i !== index));
+      //Alert.alert("Success", "Photo deleted successfully.");
+    } catch (error) {
+      console.error("Error deleting photo:", error);
+      Alert.alert("Error", "An error occurred while deleting the photo.");
+    }
+  };
 
-      // Directorio de descargas en el dispositivo
+  const handleSavePhoto = async (index) => {
+    try {
+      const photoToSave = photos[index];
+      const fileUri = photoToSave.uri;
       const downloadDirectory = FileSystem.documentDirectory + "downloads/";
-
-      // Verificar si el directorio de descargas existe, si no, crearlo
       const directoryInfo = await FileSystem.getInfoAsync(downloadDirectory);
       if (!directoryInfo.exists) {
         await FileSystem.makeDirectoryAsync(downloadDirectory, {
           intermediates: true,
         });
       }
-
-      // Nombre del archivo descargado
       const fileName = "downloaded_photo.jpg";
-
-      // Ruta de destino para la descarga
       const destinationUri = downloadDirectory + fileName;
-
-      // Copiar el archivo desde su ubicación actual a la ubicación de descargas
       await FileSystem.copyAsync({
         from: fileUri,
         to: destinationUri,
       });
-
-      // Guardar la imagen en la galería
       await MediaLibrary.saveToLibraryAsync(destinationUri);
-
-      // Mostrar un mensaje de éxito
       Alert.alert(
         "Download Complete",
         "The image has been saved to your device gallery.",
         [{ text: "OK" }]
       );
     } catch (error) {
-      console.error("Error downloading image:", error);
-      // Mostrar un mensaje de error en caso de falla
+      console.error("Error saving photo:", error);
       Alert.alert(
         "Error",
-        "Failed to download the image. Please try again later.",
+        "Failed to save the photo. Please try again later.",
         [{ text: "OK" }]
       );
     }
@@ -121,7 +147,7 @@ const PhotoScreen = () => {
         <View style={styles.gallery}>{renderPhotos()}</View>
         {photos.length > 0 && (
           <TouchableOpacity onPress={clearPhotos} style={styles.clearButton}>
-            <Text style={styles.clearButtonText}>Clear Photos</Text>
+            <Text style={styles.clearButtonText}>Delete All Photos</Text>
           </TouchableOpacity>
         )}
 
@@ -170,7 +196,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   clearButton: {
-    backgroundColor: appConfig.COLORS.primary,
     borderRadius: 8,
     padding: 10,
     alignSelf: "center",
@@ -178,7 +203,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   clearButtonText: {
-    color: appConfig.COLORS.white,
+    color: "red",
     fontSize: 16,
   },
   fullScreenContainer: {
@@ -196,19 +221,5 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
 });
-
-// Función para mostrar un mensaje de confirmación al usuario
-const promptForConfirmation = () => {
-  return new Promise((resolve) => {
-    Alert.alert(
-      "Confirmation",
-      "Do you want to save the image to your device?",
-      [
-        { text: "Cancel", onPress: () => resolve(false), style: "cancel" },
-        { text: "Save", onPress: () => resolve(true) },
-      ]
-    );
-  });
-};
 
 export default PhotoScreen;

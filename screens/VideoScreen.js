@@ -11,7 +11,13 @@ import {
 } from "react-native";
 import appConfig from "../constants/appConfig";
 import { db, auth } from "../utils/firebase-config";
-import { collection, onSnapshot, getDocs, deleteDoc } from "firebase/firestore";
+import {
+  collection,
+  onSnapshot,
+  getDocs,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
 import { MaterialIcons } from "@expo/vector-icons";
 import * as FileSystem from "expo-file-system";
 import * as MediaLibrary from "expo-media-library";
@@ -38,14 +44,25 @@ const VideoScreen = () => {
   }, []);
 
   const clearVideos = async () => {
+    Alert.alert("Confirm Clear", "Are you sure you want to clear all videos?", [
+      {
+        text: "Cancel",
+        onPress: () => console.log("Clear Videos Cancelled"),
+        style: "cancel",
+      },
+      { text: "Clear", onPress: () => handleClearVideos() },
+    ]);
+  };
+
+  const handleClearVideos = async () => {
     try {
       const userInfoSnapshot = await getDocs(collection(db, "userInfo"));
       userInfoSnapshot.forEach(async (userInfoDoc) => {
         const videosInfoSnapshot = await getDocs(
           collection(userInfoDoc.ref, "videoInfo")
         );
-        videosInfoSnapshot.forEach(async (videosDoc) => {
-          await deleteDoc(videosDoc.ref);
+        videosInfoSnapshot.forEach(async (videoDoc) => {
+          await deleteDoc(videoDoc.ref);
         });
       });
       setVideos([]);
@@ -54,51 +71,56 @@ const VideoScreen = () => {
     }
   };
 
-  const handleVideoPress = async (index) => {
+  const handleVideoPress = (index) => {
+    Alert.alert("Video Options", "What would you like to do with this video?", [
+      { text: "Delete Video", onPress: () => handleDeleteVideo(index) },
+      { text: "Save Video", onPress: () => handleSaveVideo(index) },
+      { text: "Cancel", style: "cancel" },
+    ]);
+  };
+
+  const handleDeleteVideo = async (index) => {
     try {
-      const confirmed = await promptForConfirmation();
-      if (!confirmed) return; // Si el usuario cancela, salir de la función
-      // Obtener la ruta de archivo del video desde Firestore
-      const fileUri = videos[index].uri;
+      const videoToDelete = videos[index];
+      await deleteDoc(
+        doc(db, "userInfo", auth.currentUser.uid, "videoInfo", videoToDelete.id)
+      );
+      setVideos(videos.filter((video, i) => i !== index));
+      //Alert.alert("Success", "Video deleted successfully.");
+    } catch (error) {
+      console.error("Error deleting video:", error);
+      Alert.alert("Error", "An error occurred while deleting the video.");
+    }
+  };
 
-      // Directorio de descargas en el dispositivo
+  const handleSaveVideo = async (index) => {
+    try {
+      const videoToSave = videos[index];
+      const fileUri = videoToSave.uri;
       const downloadDirectory = FileSystem.documentDirectory + "downloads/";
-
-      // Verificar si el directorio de descargas existe, si no, crearlo
       const directoryInfo = await FileSystem.getInfoAsync(downloadDirectory);
       if (!directoryInfo.exists) {
         await FileSystem.makeDirectoryAsync(downloadDirectory, {
           intermediates: true,
         });
       }
-
-      // Nombre del archivo descargado
       const fileName = "downloaded_video.mp4";
-
-      // Ruta de destino para la descarga
       const destinationUri = downloadDirectory + fileName;
-
-      // Copiar el archivo desde su ubicación actual a la ubicación de descargas
       await FileSystem.copyAsync({
         from: fileUri,
         to: destinationUri,
       });
-
-      // Guardar la imagen en la galería
       await MediaLibrary.saveToLibraryAsync(destinationUri);
-
-      // Mostrar un mensaje de éxito
       Alert.alert(
         "Download Complete",
         "The video has been saved to your device gallery.",
         [{ text: "OK" }]
       );
     } catch (error) {
-      console.error("Error downloading video:", error);
-      // Mostrar un mensaje de error en caso de falla
+      console.error("Error saving video:", error);
       Alert.alert(
         "Error",
-        "Failed to download the video. Please try again later.",
+        "Failed to save the video. Please try again later.",
         [{ text: "OK" }]
       );
     }
@@ -155,7 +177,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   clearButton: {
-    backgroundColor: appConfig.COLORS.primary,
     borderRadius: 8,
     padding: 10,
     alignSelf: "center",
@@ -163,7 +184,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   clearButtonText: {
-    color: appConfig.COLORS.white,
+    color: "red",
     fontSize: 16,
   },
 });
