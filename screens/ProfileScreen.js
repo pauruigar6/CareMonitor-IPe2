@@ -25,7 +25,7 @@ const ProfileScreen = ({ navigation }) => {
           >
             <FontAwesome5
               name="volume-up"
-              size={24}
+              size={50}
               color={appConfig.COLORS.white}
             />
             <Text style={styles.buttonText}>Audio</Text>
@@ -36,7 +36,7 @@ const ProfileScreen = ({ navigation }) => {
           >
             <FontAwesome5
               name="camera"
-              size={24}
+              size={50}
               color={appConfig.COLORS.white}
             />
             <Text style={styles.buttonText}>Camera</Text>
@@ -49,7 +49,7 @@ const ProfileScreen = ({ navigation }) => {
           >
             <FontAwesome5
               name="file-alt"
-              size={24}
+              size={50}
               color={appConfig.COLORS.white}
             />
             <Text style={styles.buttonText}>Text</Text>
@@ -58,7 +58,7 @@ const ProfileScreen = ({ navigation }) => {
             style={styles.button}
             onPress={() => handleNavigation("HandwritingScreen")}
           >
-            <FontAwesome5 name="pen" size={24} color={appConfig.COLORS.white} />
+            <FontAwesome5 name="pen" size={50} color={appConfig.COLORS.white} />
             <Text style={styles.buttonText}>Handwriting</Text>
           </TouchableOpacity>
         </View>
@@ -85,8 +85,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   button: {
-    width: 150,
-    height: 150,
+    width: 300,
+    height: 350,
     backgroundColor: appConfig.COLORS.primary,
     justifyContent: "center",
     alignItems: "center",
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: appConfig.COLORS.white,
-    fontSize: 16,
+    fontSize: 26,
     marginTop: 5, // Añade un pequeño espacio entre el icono y el texto
   },
 });

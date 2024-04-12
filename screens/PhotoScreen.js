@@ -55,12 +55,14 @@ const PhotoScreen = () => {
 
   const handleImagePress = async (index) => {
     try {
+      const confirmed = await promptForConfirmation();
+      if (!confirmed) return; // Si el usuario cancela, salir de la función
       // Obtener la ruta de archivo de la imagen desde Firestore
       const fileUri = photos[index].uri;
-  
+
       // Directorio de descargas en el dispositivo
       const downloadDirectory = FileSystem.documentDirectory + "downloads/";
-  
+
       // Verificar si el directorio de descargas existe, si no, crearlo
       const directoryInfo = await FileSystem.getInfoAsync(downloadDirectory);
       if (!directoryInfo.exists) {
@@ -68,22 +70,22 @@ const PhotoScreen = () => {
           intermediates: true,
         });
       }
-  
+
       // Nombre del archivo descargado
       const fileName = "downloaded_photo.jpg";
-  
+
       // Ruta de destino para la descarga
       const destinationUri = downloadDirectory + fileName;
-  
+
       // Copiar el archivo desde su ubicación actual a la ubicación de descargas
       await FileSystem.copyAsync({
         from: fileUri,
         to: destinationUri,
       });
-  
+
       // Guardar la imagen en la galería
       await MediaLibrary.saveToLibraryAsync(destinationUri);
-  
+
       // Mostrar un mensaje de éxito
       Alert.alert(
         "Download Complete",
@@ -161,8 +163,8 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
   },
   image: {
-    width: 150,
-    height: 150,
+    width: 220,
+    height: 220,
     margin: 10,
     borderRadius: 10,
   },
