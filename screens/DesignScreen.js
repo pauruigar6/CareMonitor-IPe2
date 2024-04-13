@@ -20,6 +20,8 @@ import {
 } from "../utils/firebase-config";
 import { onSnapshot } from "firebase/firestore";
 import Svg, { Path } from "react-native-svg";
+import * as FileSystem from "expo-file-system";
+import * as MediaLibrary from "expo-media-library";
 
 const DesignScreen = () => {
   const [drawings, setDrawings] = useState([]);
@@ -87,12 +89,7 @@ const DesignScreen = () => {
       [
         {
           text: "Save Handwriting",
-          onPress: () => {
-            // Aquí puedes implementar la lógica para guardar el dibujo
-            // Puedes usar AsyncStorage o cualquier otra forma de almacenamiento
-            // Aquí simplemente mostraremos un mensaje de alerta
-            Alert.alert("Save", "Feature coming soon!");
-          },
+          onPress: () => saveDrawingToGallery(drawing),
         },
         {
           text: "Delete",
@@ -105,6 +102,34 @@ const DesignScreen = () => {
         },
       ]
     );
+  };
+
+  const saveDrawingToGallery = async (drawing) => {
+    try {
+      const fileName = `${drawing.id}.svg`;
+      const filePath = `${FileSystem.documentDirectory}${fileName}`;
+      const svgContent = generateSVGContent(drawing);
+
+      await FileSystem.writeAsStringAsync(filePath, svgContent, {
+        encoding: FileSystem.EncodingType.UTF8,
+      });
+
+      await MediaLibrary.saveToLibraryAsync(filePath);
+
+      Alert.alert("Download Complete", "The handwriting has been saved to your device gallery.");
+    } catch (error) {
+      console.error("Error saving handwriting:", error);
+      Alert.alert("Error", "An error occurred while saving the handwriting.");
+    }
+  };
+
+  const generateSVGContent = (drawing) => {
+    let svgContent = `<svg width="750" height="750" xmlns="http://www.w3.org/2000/svg">`;
+    drawing.paths.forEach((path) => {
+      svgContent += `<path d="${path.d}" fill="none" stroke="black" stroke-width="2" />`;
+    });
+    svgContent += `</svg>`;
+    return svgContent;
   };
 
   const handleDeleteDrawing = async (id) => {
