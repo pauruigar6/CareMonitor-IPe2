@@ -84,30 +84,132 @@ const DesignScreen = () => {
     );
   };
 
+  const handlePressDrawing = (drawing) => {
+    Alert.alert(
+      "Handwriting Options",
+      "What would you like to do with this handwriting?",
+      [
+        
+        {
+          text: "Save Handwriting",
+          onPress: () => {
+            // Aquí puedes implementar la lógica para guardar el dibujo
+            // Puedes usar AsyncStorage o cualquier otra forma de almacenamiento
+            // Aquí simplemente mostraremos un mensaje de alerta
+            Alert.alert("Save", "Feature coming soon!");
+          },
+        },
+        {
+          text: "Delete",
+          onPress: () => handleDeleteDrawing(drawing.id),
+          style: "destructive",
+        },
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+      ]
+    );
+  };
+
+  const handleDeleteDrawing = async (id) => {
+    Alert.alert(
+      "Confirm Delete",
+      "Are you sure you want to delete this Handwriting?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          onPress: async () => {
+            try {
+              await deleteDoc(
+                doc(db, "userInfo", auth.currentUser.uid, "handwritingInfo", id)
+              );
+              setDrawings(drawings.filter((drawing) => drawing.id !== id));
+              Alert.alert(
+                "Handwriting Deleted",
+                "The handwriting has been deleted successfully."
+              );
+            } catch (error) {
+              console.error("Error deleting handwriting:", error);
+              Alert.alert(
+                "Error",
+                "An error occurred while deleting the handwriting."
+              );
+            }
+          },
+          style: "destructive",
+        },
+      ]
+    );
+  };
+
   const renderDrawings = () => {
-    return drawings.map((drawing) => (
-      <View key={drawing.id} style={styles.drawingContainer}>
-        <View style={styles.drawingWrapper}>
-          <Text style={styles.drawingTitle}>{drawing.title}</Text>
-          <Svg
-            style={styles.drawing}
-            width="100%"
-            height="100%"
-            viewBox={`0 0 ${750} ${750}`}
-          >
-            {drawing.paths.map((path, index) => (
-              <Path
-                key={index}
-                d={path.d}
-                fill="none"
-                stroke="black"
-                strokeWidth={2}
-              />
-            ))}
-          </Svg>
+    const rows = [];
+    for (let i = 0; i < drawings.length; i += 2) {
+      const drawing1 = drawings[i];
+      const drawing2 = drawings[i + 1];
+      rows.push(
+        <View key={i} style={styles.row}>
+          {drawing1 && (
+            <TouchableOpacity
+              style={styles.drawingContainer}
+              onPress={() => handlePressDrawing(drawing1)}
+            >
+              <View style={styles.drawingWrapper}>
+                <Text style={styles.drawingTitle}>{drawing1.title}</Text>
+                <Svg
+                  style={styles.drawing}
+                  width="100%"
+                  height="100%"
+                  viewBox={`0 0 ${750} ${750}`}
+                >
+                  {drawing1.paths.map((path, index) => (
+                    <Path
+                      key={index}
+                      d={path.d}
+                      fill="none"
+                      stroke="black"
+                      strokeWidth={2}
+                    />
+                  ))}
+                </Svg>
+              </View>
+            </TouchableOpacity>
+          )}
+          {drawing2 && (
+            <TouchableOpacity
+              style={styles.drawingContainer}
+              onPress={() => handlePressDrawing(drawing2)}
+            >
+              <View style={styles.drawingWrapper}>
+                <Text style={styles.drawingTitle}>{drawing2.title}</Text>
+                <Svg
+                  style={styles.drawing}
+                  width="100%"
+                  height="100%"
+                  viewBox={`0 0 ${750} ${750}`}
+                >
+                  {drawing2.paths.map((path, index) => (
+                    <Path
+                      key={index}
+                      d={path.d}
+                      fill="none"
+                      stroke="black"
+                      strokeWidth={2}
+                    />
+                  ))}
+                </Svg>
+              </View>
+            </TouchableOpacity>
+          )}
         </View>
-      </View>
-    ));
+      );
+    }
+    return rows;
   };
 
   return (
@@ -129,7 +231,9 @@ const DesignScreen = () => {
             style={styles.deleteAllButton}
             onPress={handleDeleteAllDrawings}
           >
-            <Text style={styles.deleteAllButtonText}>Delete All Handwritings</Text>
+            <Text style={styles.deleteAllButtonText}>
+              Delete All Handwritings
+            </Text>
           </TouchableOpacity>
         )}
       </ScrollView>
@@ -145,15 +249,19 @@ const styles = StyleSheet.create({
   contentContainer: {
     padding: 16,
   },
-  drawingContainer: {
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 16,
+  },
+  drawingContainer: {
+    width: "48%", // Adjust as needed
   },
   drawingWrapper: {
     borderWidth: 0.5,
     borderColor: "black",
     borderRadius: 10,
     overflow: "hidden",
-    width: "45%",
     aspectRatio: 1, // Cuadrado
   },
   drawingTitle: {
