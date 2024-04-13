@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import appConfig from "../constants/appConfig";
+import { db, auth, collection, doc, addDoc } from "../utils/firebase-config";
 
 const PaintScreen = () => {
   const [paths, setPaths] = useState([]);
@@ -50,19 +51,33 @@ const PaintScreen = () => {
       setDrawingError("Drawing is required");
       return;
     }
-    if (paths.length != 0 && title.trim() === "") {
-      setDrawingError("");
+    if (title.trim() === "") {
       setTitleError("Title is required");
       return;
     }
-    if (paths.length != 0 && title.trim() !== "") {
-      setDrawingError("");
-      setTitleError("");
-      return;
-    }
 
-    // Aquí puedes agregar la lógica para guardar el dibujo si es necesario
-    console.log("handleAddPaint");
+    try {
+      const drawingData = {
+        title: title.trim(),
+        paths: paths,
+        timestamp: new Date().toISOString(),
+      };
+      const userInfoRef = doc(db, "userInfo", auth.currentUser.uid);
+      const handwritingInfoRef = collection(userInfoRef, "handwritingInfo");
+
+      await addDoc(handwritingInfoRef, drawingData);
+
+      console.log("Handwriting saved successfully!");
+
+      // Limpiar el canvas y el título después de guardar
+      setTitle("");
+      setPaths([]);
+      setTitleError("");
+      setDrawingError("");
+    } catch (error) {
+      console.error("Error saving handwriting:", error);
+      // Handle error saving handwriting
+    }
   };
 
   return (
