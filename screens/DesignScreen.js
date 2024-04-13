@@ -255,19 +255,20 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   drawingContainer: {
+    backgroundColor: appConfig.COLORS.white,
     width: "48%", // Adjust as needed
   },
   drawingWrapper: {
-    borderWidth: 0.5,
+    borderWidth: 1,
     borderColor: "black",
-    borderRadius: 10,
+    borderRadius: 5,
     overflow: "hidden",
     aspectRatio: 1, // Cuadrado
   },
   drawingTitle: {
     fontSize: 16,
     fontWeight: "bold",
-    marginBottom: 8,
+    marginBottom: 20,
     padding: 8,
   },
   drawing: {
