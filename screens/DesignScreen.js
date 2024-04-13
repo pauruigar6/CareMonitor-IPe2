@@ -89,7 +89,12 @@ const DesignScreen = () => {
       <View key={drawing.id} style={styles.drawingContainer}>
         <View style={styles.drawingWrapper}>
           <Text style={styles.drawingTitle}>{drawing.title}</Text>
-          <Svg style={styles.drawing}>
+          <Svg
+            style={styles.drawing}
+            width="100%"
+            height="100%"
+            viewBox={`0 0 ${750} ${750}`}
+          >
             {drawing.paths.map((path, index) => (
               <Path
                 key={index}
