@@ -66,10 +66,6 @@ const DesignScreen = () => {
               });
 
               setDrawings([]); // Clear the drawings array
-              Alert.alert(
-                "Handwritings Deleted",
-                "All handwritings have been deleted successfully."
-              );
             } catch (error) {
               console.error("Error deleting handwritings:", error);
               Alert.alert(
@@ -89,7 +85,6 @@ const DesignScreen = () => {
       "Handwriting Options",
       "What would you like to do with this handwriting?",
       [
-        
         {
           text: "Save Handwriting",
           onPress: () => {
@@ -129,10 +124,6 @@ const DesignScreen = () => {
                 doc(db, "userInfo", auth.currentUser.uid, "handwritingInfo", id)
               );
               setDrawings(drawings.filter((drawing) => drawing.id !== id));
-              Alert.alert(
-                "Handwriting Deleted",
-                "The handwriting has been deleted successfully."
-              );
             } catch (error) {
               console.error("Error deleting handwriting:", error);
               Alert.alert(
