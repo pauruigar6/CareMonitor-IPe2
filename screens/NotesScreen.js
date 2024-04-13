@@ -68,10 +68,11 @@ const NotesScreen = () => {
   const handleEditNote = (noteId) => {
     // Muestra opciones para editar o eliminar la nota
     Alert.alert(
-      "Photo Options", "What would you like to do with this photo?",
+      "Note Options", "What would you like to do with this note?",
       [
-        { text: "Edit Note", onPress: () => handleEditOption(noteId) },
         { text: "Delete Note", onPress: () => confirmDeleteNote(noteId) },
+        { text: "Edit Note", onPress: () => handleEditOption(noteId) },
+  
         { text: "Cancel", style: "cancel" },
       ],
       { cancelable: true }

@@ -198,7 +198,6 @@ const styles = StyleSheet.create({
     color: appConfig.COLORS.primary,
   },
   clearButton: {
-    backgroundColor: appConfig.COLORS.primary,
     borderRadius: 8,
     padding: 10,
     alignSelf: "center",
@@ -206,7 +205,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   clearButtonText: {
-    color: appConfig.COLORS.white,
+    color: "red",
     fontSize: 16,
   },
   expandedContent: {
