@@ -45,7 +45,7 @@ const VideoScreen = () => {
 
   const clearVideos = async () => {
     Alert.alert(
-      "Confirm Delete",
+      "Confirm Delete All",
       "Are you sure you want to delete all videos?",
       [
         {
@@ -53,7 +53,7 @@ const VideoScreen = () => {
           onPress: () => console.log("Delete Videos Cancelled"),
           style: "cancel",
         },
-        { text: "Delete", onPress: () => handleClearVideos() },
+        { text: "Delete All", onPress: () => handleClearVideos() },
       ]
     );
   };

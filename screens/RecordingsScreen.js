@@ -59,7 +59,7 @@ const RecordingsScreen = () => {
 
   const handleClearRecordings = () => {
     Alert.alert(
-      "Confirm Delete",
+      "Confirm Delete All",
       "Are you sure you want to delete all recordings?",
       [
         {
@@ -68,7 +68,7 @@ const RecordingsScreen = () => {
           style: "cancel",
         },
         {
-          text: "Delete",
+          text: "Delete All",
           onPress: async () => {
             try {
               const user = auth.currentUser;

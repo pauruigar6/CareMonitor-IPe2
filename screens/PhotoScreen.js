@@ -45,7 +45,7 @@ const PhotoScreen = () => {
 
   const clearPhotos = async () => {
     Alert.alert(
-      "Confirm Delete",
+      "Confirm Delete All",
       "Are you sure you want to delete all photos?",
       [
         {
@@ -53,7 +53,7 @@ const PhotoScreen = () => {
           onPress: () => console.log("Delete Photos Cancelled"),
           style: "cancel",
         },
-        { text: "Delete", onPress: () => handleClearPhotos() },
+        { text: "Delete All", onPress: () => handleClearPhotos() },
       ]
     );
   };
@@ -79,7 +79,7 @@ const PhotoScreen = () => {
     Alert.alert("Photo Options", "What would you like to do with this photo?", [
       { text: "Save Photo", onPress: () => handleSavePhoto(index) },
       { text: "Delete", onPress: () => handleDeletePhoto(index) },
-  
+
       { text: "Cancel", style: "cancel" },
     ]);
   };

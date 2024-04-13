@@ -1,13 +1,11 @@
-// DesignScreen.js
 import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  TextInput,
-  TouchableOpacity,
   StyleSheet,
   ScrollView,
   SafeAreaView,
+  TouchableOpacity,
   Alert,
 } from "react-native";
 import appConfig from "../constants/appConfig";
@@ -21,72 +19,112 @@ import {
   deleteDoc,
 } from "../utils/firebase-config";
 import { onSnapshot } from "firebase/firestore";
+import Svg, { Path } from "react-native-svg";
 
 const DesignScreen = () => {
-  const [notes, setNotes] = useState([]);
-  const [showAddNoteContainer, setShowAddNoteContainer] = useState(false);
-
-  const [newNoteTitle, setNewNoteTitle] = useState("");
-  const [newNoteContent, setNewNoteContent] = useState("");
+  const [drawings, setDrawings] = useState([]);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(
-      collection(db, "userInfo", auth.currentUser.uid, "textInfo"),
+      collection(db, "userInfo", auth.currentUser.uid, "handwritingInfo"),
       (snapshot) => {
-        const fetchedNotes = [];
+        const fetchedDrawings = [];
         snapshot.forEach((doc) => {
-          const notesData = doc.data();
-          fetchedNotes.push({ id: doc.id, ...doc.data() });
+          const drawingData = doc.data();
+          fetchedDrawings.push({ id: doc.id, ...drawingData });
         });
-        setNotes(fetchedNotes);
+        setDrawings(fetchedDrawings);
       }
     );
 
     return () => unsubscribe();
   }, []);
 
-  const handleDeleteAllNotes = async () => {
-    try {
-      const userInfoRef = doc(db, "userInfo", auth.currentUser.uid);
-      const textInfoRef = collection(userInfoRef, "textInfo");
+  const handleDeleteAllDrawings = async () => {
+    Alert.alert(
+      "Confirm Delete All",
+      "Are you sure you want to delete all Handwritings?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete All",
+          onPress: async () => {
+            try {
+              const userInfoRef = doc(db, "userInfo", auth.currentUser.uid);
+              const handwritingInfoRef = collection(
+                userInfoRef,
+                "handwritingInfo"
+              );
 
-      // Delete all notes in the 'textInfo' collection
-      const snapshot = await getDocs(textInfoRef);
-      snapshot.forEach(async (doc) => {
-        await deleteDoc(doc.ref);
-      });
+              // Delete all drawings in the 'handwritingInfo' collection
+              const snapshot = await getDocs(handwritingInfoRef);
+              snapshot.forEach(async (doc) => {
+                await deleteDoc(doc.ref);
+              });
 
-      setNotes([]); // Clear the notes array
-      //Alert.alert("Notes Deleted", "All notes have been deleted successfully.");
-    } catch (error) {
-      console.error("Error deleting notes:", error);
-      Alert.alert("Error", "An error occurred while deleting the notes.");
-    }
+              setDrawings([]); // Clear the drawings array
+              Alert.alert(
+                "Handwritings Deleted",
+                "All handwritings have been deleted successfully."
+              );
+            } catch (error) {
+              console.error("Error deleting handwritings:", error);
+              Alert.alert(
+                "Error",
+                "An error occurred while deleting the handwritings."
+              );
+            }
+          },
+          style: "destructive",
+        },
+      ]
+    );
   };
 
-  const renderNotes = () => {
-    return notes.map((note) => (
-      <TouchableOpacity key={note.id} style={styles.note}>
-        <Text style={styles.noteTitle}>{note.title}</Text>
-        <Text style={styles.noteContent}>{note.content}</Text>
-      </TouchableOpacity>
+  const renderDrawings = () => {
+    return drawings.map((drawing) => (
+      <View key={drawing.id} style={styles.drawingContainer}>
+        <View style={styles.drawingWrapper}>
+          <Text style={styles.drawingTitle}>{drawing.title}</Text>
+          <Svg style={styles.drawing}>
+            {drawing.paths.map((path, index) => (
+              <Path
+                key={index}
+                d={path.d}
+                fill="none"
+                stroke="black"
+                strokeWidth={2}
+              />
+            ))}
+          </Svg>
+        </View>
+      </View>
     ));
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.contentContainer}>
-        <Text style={{ ...appConfig.FONTS.h1, color: appConfig.COLORS.black }}>
-          My Notes
+        <Text
+          style={{
+            ...appConfig.FONTS.h1,
+            color: appConfig.COLORS.black,
+            marginBottom: 20,
+          }}
+        >
+          My Handwritings
         </Text>
-        {renderNotes()}
+        {renderDrawings()}
 
-        {notes.length > 0 && (
+        {drawings.length > 0 && (
           <TouchableOpacity
             style={styles.deleteAllButton}
-            onPress={handleDeleteAllNotes}
+            onPress={handleDeleteAllDrawings}
           >
-            <Text style={styles.deleteAllButtonText}>Delete All Notes</Text>
+            <Text style={styles.deleteAllButtonText}>Delete All Handwritings</Text>
           </TouchableOpacity>
         )}
       </ScrollView>
@@ -102,65 +140,34 @@ const styles = StyleSheet.create({
   contentContainer: {
     padding: 16,
   },
-  note: {
-    backgroundColor: "white",
-    borderRadius: 10,
+  drawingContainer: {
     marginBottom: 16,
-    padding: 16,
-    elevation: 3,
-    marginTop: 16,
   },
-  noteTitle: {
-    fontSize: 18,
+  drawingWrapper: {
+    borderWidth: 0.5,
+    borderColor: "black",
+    borderRadius: 10,
+    overflow: "hidden",
+    width: "45%",
+    aspectRatio: 1, // Cuadrado
+  },
+  drawingTitle: {
+    fontSize: 16,
     fontWeight: "bold",
     marginBottom: 8,
-  },
-  noteContent: {
-    fontSize: 16,
-    color: "#666",
-  },
-  newNoteContainer: {
-    backgroundColor: "white",
-    borderRadius: 10,
-    marginBottom: 16,
-    padding: 16,
-    elevation: 3,
-  },
-  newNoteTitleInput: {
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
-    marginBottom: 8,
-  },
-  newNoteContentInput: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-    minHeight: 100,
     padding: 8,
-    marginBottom: 8,
-    textAlignVertical: "top",
   },
-  addNoteButton: {
-    backgroundColor: appConfig.COLORS.primary,
-    borderRadius: 8,
-    padding: 10,
-    alignSelf: "center",
-    marginTop: 40,
-    marginBottom: 20,
-  },
-  addNoteButtonText: {
-    color: "white",
-    fontSize: 16,
+  drawing: {
+    flex: 1,
   },
   deleteAllButton: {
-    backgroundColor: "#ff4444",
     borderRadius: 8,
     padding: 10,
     alignSelf: "center",
-    marginBottom: 20,
+    marginTop: 20,
   },
   deleteAllButtonText: {
-    color: "white",
+    color: "red",
     fontSize: 16,
   },
 });

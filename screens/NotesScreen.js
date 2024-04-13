@@ -146,7 +146,7 @@ const NotesScreen = () => {
 
   const confirmDeleteAllNotes = () => {
     Alert.alert(
-      "Confirm Delete",
+      "Confirm Delete All",
       "Are you sure you want to delete all notes?",
       [
         {
