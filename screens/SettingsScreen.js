@@ -160,6 +160,7 @@ const styles = StyleSheet.create({
     paddingVertical: SIZES.padding,
     paddingHorizontal: SIZES.padding,
     marginTop: SIZES.base * 1.5,
+    height: 50,
   },
   icon: {
     marginRight: SIZES.padding,
