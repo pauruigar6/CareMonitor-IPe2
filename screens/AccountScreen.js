@@ -1,11 +1,100 @@
 // AccountScreen.js
 import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView, SafeAreaView, StyleSheet } from "react-native";
-import { FontAwesome5 } from "@expo/vector-icons";
-import appConfig from "../constants/appConfig";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Linking,
+  Platform,
+  Alert,
+  ScrollView,
+  Image,
+  SafeAreaView
+} from "react-native";import { FontAwesome5 } from "@expo/vector-icons";
 
-import { db } from "../utils/firebase-config";
-import { collection, getDocs } from 'firebase/firestore';
+import appConfig, { COLORS, SIZES } from "../constants/appConfig";
+import { getDocs, collection, db } from "../utils/firebase-config";
+
+
+const CustomHeader = ({ navigation }) => {
+  const [userNameInitial, setUserNameInitial] = useState("");
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "userInfo"));
+        if (querySnapshot.docs.length > 0) {
+          const userData = querySnapshot.docs[0].data();
+          const initial = userData.name
+            ? userData.name.charAt(0).toUpperCase()
+            : "";
+          setUserNameInitial(initial);
+        }
+      } catch (error) {
+        console.error("Error fetching user data from Firestore:", error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  return (
+    <SafeAreaView style={{ height: 130, backgroundColor: COLORS.white }}>
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          padding: 16,
+          backgroundColor: COLORS.white,
+          height: 100,
+          marginTop: 39,
+
+        }}
+      >
+        <Image
+          source={require("../assets/logo.png")}
+          style={{
+            width: 50,
+            height: 50,
+            marginRight: 10,
+            tintColor: COLORS.black,
+            marginLeft: 10,
+          }}
+        />
+        <Text
+          style={{
+            fontSize: 20,
+            fontWeight: "bold",
+            marginTop: 10,
+            color: COLORS.black,
+          }}
+        >
+          Care Monitor
+        </Text>
+        <View style={{ flex: 1, alignItems: "flex-end" }}>
+          <TouchableOpacity
+          >
+            <View
+              style={{
+                width: 60,
+                height: 60,
+                backgroundColor: COLORS.primary,
+                borderRadius: 30,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Text style={{ color: COLORS.white, fontSize: 18 }}>
+                {userNameInitial}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </SafeAreaView>
+  );
+};
 
 const AccountScreen = () => {
   const [userData, setUserData] = useState({
@@ -19,7 +108,7 @@ const AccountScreen = () => {
         const querySnapshot = await getDocs(collection(db, "userInfo"));
         if (querySnapshot.docs.length > 0) {
           const userData = querySnapshot.docs[0].data();
-          setUserData(userData); // Corregir aquí para establecer los datos del usuario
+          setUserData(userData);
         }
       } catch (error) {
         console.error("Error fetching user data from Firestore:", error);
@@ -30,17 +119,10 @@ const AccountScreen = () => {
   }, []);
 
   return (
-    <SafeAreaView
-      style={{ flex: 1, backgroundColor: appConfig.COLORS.background }}
-    >
-      <ScrollView
-        style={{
-          flex: 1,
-          backgroundColor: appConfig.COLORS.background,
-          padding: 16,
-        }}
-      >
-        <Text style={{ ...appConfig.FONTS.h1, color: appConfig.COLORS.black, marginTop: 60 }}>
+    <View style={{ flex: 1, backgroundColor: COLORS.background }}>
+      <CustomHeader />
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={{ ...appConfig.FONTS.h1, color: COLORS.black, marginBottom: 30 }}>
           My Account
         </Text>
         <View style={styles.card}>
@@ -59,13 +141,17 @@ const AccountScreen = () => {
           </View>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flexGrow: 1,
+    padding: 30,
+  },
   card: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.white,
     borderRadius: 10,
     marginTop: 16,
     padding: 16,
@@ -84,7 +170,7 @@ const styles = StyleSheet.create({
   icon: {
     marginRight: 10,
     fontSize: 16,
-    color: appConfig.COLORS.primary,
+    color: COLORS.primary,
     marginBottom: 10,
   },
 });

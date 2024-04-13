@@ -1,5 +1,4 @@
-// HelpAndSupportScreen.js
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -9,12 +8,92 @@ import {
   Platform,
   Alert,
   ScrollView,
+  Image,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
-import appConfig, { COLORS, SIZES } from "../constants/appConfig"; // Asegúrate de importar tus estilos y configuraciones
+import appConfig, { COLORS, SIZES } from "../constants/appConfig";
+import { getDocs, collection, db } from "../utils/firebase-config";
 
-const HelpAndSupportScreen = () => {
+const CustomHeader = ({ navigation }) => {
+  const [userNameInitial, setUserNameInitial] = useState("");
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "userInfo"));
+        if (querySnapshot.docs.length > 0) {
+          const userData = querySnapshot.docs[0].data();
+          const initial = userData.name
+            ? userData.name.charAt(0).toUpperCase()
+            : "";
+          setUserNameInitial(initial);
+        }
+      } catch (error) {
+        console.error("Error fetching user data from Firestore:", error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  return (
+    <SafeAreaView style={{ height: 130, backgroundColor: COLORS.white }}>
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          padding: 16,
+          backgroundColor: COLORS.white,
+          height: 100,
+        }}
+      >
+        <Image
+          source={require("../assets/logo.png")}
+          style={{
+            width: 50,
+            height: 50,
+            marginRight: 10,
+            tintColor: COLORS.black,
+            marginLeft: 10,
+          }}
+        />
+        <Text
+          style={{
+            fontSize: 20,
+            fontWeight: "bold",
+            color: COLORS.black,
+          }}
+        >
+          Care Monitor
+        </Text>
+        <View style={{ flex: 1, alignItems: "flex-end" }}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("AccountScreen")}
+          >
+            <View
+              style={{
+                width: 60,
+                height: 60,
+                backgroundColor: COLORS.primary,
+                borderRadius: 30,
+                justifyContent: "center",
+                alignItems: "center",
+                marginRight: 10,
+              }}
+            >
+              <Text style={{ color: COLORS.white, fontSize: 18 }}>
+                {userNameInitial}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </SafeAreaView>
+  );
+};
+
+const HelpAndSupportScreen = ({ navigation }) => {
   const supportEmail = "262119@vut.cz";
 
   const handleContactSupport = () => {
@@ -36,16 +115,16 @@ const HelpAndSupportScreen = () => {
         .then(() => console.log("Opened Gmail in Safari"))
         .catch((err) => console.error("Failed to open Gmail:", err));
     } else if (Platform.OS === "android") {
-      // Puedes agregar aquí la lógica para abrir el cliente de correo en Android si lo deseas
       Alert.alert("Not supported on this platform");
     }
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
+      <CustomHeader navigation={navigation} />
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <Text
-          style={{ ...appConfig.FONTS.h1, color: COLORS.black, marginTop: 30 }}
+          style={{ ...appConfig.FONTS.h1, color: COLORS.black, marginTop: 0 }}
         >
           Help & Support
         </Text>
@@ -67,7 +146,7 @@ const HelpAndSupportScreen = () => {
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -90,12 +169,10 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: SIZES.h2,
     fontWeight: "bold",
-    marginBottom: SIZES.padding * 2,
     color: COLORS.black,
   },
   icon: {
     marginBottom: SIZES.padding,
-    marginTop: SIZES.padding * 3,
   },
   button: {
     backgroundColor: COLORS.primary,
