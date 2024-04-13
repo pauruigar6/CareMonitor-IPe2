@@ -149,14 +149,14 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   newNoteContainer: {
-    marginTop: 100,
+    marginTop: 75,
     width: "100%",
     padding: 16,
   },
   newNoteTitleInput: {
     borderBottomWidth: 1,
     borderBottomColor: "#ccc",
-    marginBottom: 8,
+    marginBottom: 25,
   },
   newNoteContentInput: {
     borderWidth: 1,
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
     width: "45%",
   },
   cancelNoteButton: {
-    marginTop: 20,
+    paddingTop: 30,
     backgroundColor: appConfig.COLORS.red,
     borderRadius: 8,
     padding: 10,
