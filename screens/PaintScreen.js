@@ -5,7 +5,6 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  ScrollView,
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import appConfig from "../constants/appConfig";
@@ -13,6 +12,8 @@ import appConfig from "../constants/appConfig";
 const PaintScreen = () => {
   const [paths, setPaths] = useState([]);
   const [title, setTitle] = useState("");
+  const [titleError, setTitleError] = useState("");
+  const [drawingError, setDrawingError] = useState("");
 
   const handleTouchStart = (event) => {
     const { locationX, locationY } = event.nativeEvent;
@@ -34,9 +35,33 @@ const PaintScreen = () => {
 
   const handleTitleChange = (text) => {
     setTitle(text);
+    setTitleError(""); // Reset title error when title changes
+  };
+
+  const handleCancelHandwriting = () => {
+    setTitle("");
+    setPaths([]);
+    setTitleError("");
+    setDrawingError("");
   };
 
   const handleAddPaint = async () => {
+    if (paths.length === 0) {
+      setDrawingError("Drawing is required");
+      return;
+    }
+    if (paths.length != 0 && title.trim() === "") {
+      setDrawingError("");
+      setTitleError("Title is required");
+      return;
+    }
+    if (paths.length != 0 && title.trim() !== "") {
+      setDrawingError("");
+      setTitleError("");
+      return;
+    }
+
+    // Aquí puedes agregar la lógica para guardar el dibujo si es necesario
     console.log("handleAddPaint");
   };
 
@@ -52,6 +77,7 @@ const PaintScreen = () => {
           value={title}
           onChangeText={handleTitleChange}
         />
+        {titleError ? <Text style={styles.errorText}>{titleError}</Text> : null}
       </View>
       <View style={styles.canvasContainer}>
         <Svg style={styles.canvas}>
@@ -71,22 +97,24 @@ const PaintScreen = () => {
           onTouchMove={handleTouchMove}
         />
       </View>
+      {drawingError ? (
+        <Text style={styles.errorText}>{drawingError}</Text>
+      ) : null}
       <View style={styles.buttonsContainer}>
-
-      <TouchableOpacity
-        style={styles.cancelHandwritingButton}
-        onPress={handleAddPaint}
-      >
-        <Text style={styles.cancelHandwritingButtonText}>Cancel Handwriting</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={styles.addHandwritingButton}
-        onPress={handleAddPaint}
-      >
-        <Text style={styles.addHandwritingButtonText}>Save Handwriting</Text>
-      </TouchableOpacity>
-
+        <TouchableOpacity
+          style={styles.cancelHandwritingButton}
+          onPress={handleCancelHandwriting}
+        >
+          <Text style={styles.cancelHandwritingButtonText}>
+            Cancel Handwriting
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.addHandwritingButton}
+          onPress={handleAddPaint}
+        >
+          <Text style={styles.addHandwritingButtonText}>Save Handwriting</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -99,7 +127,6 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   canvasContainer: {
-    width: "100%",
     flex: 1,
     borderWidth: 1,
     borderBottomColor: "black",
@@ -107,7 +134,6 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   canvas: {
-    
     flex: 1,
   },
   touchArea: {
@@ -153,6 +179,11 @@ const styles = StyleSheet.create({
     color: "red",
     fontSize: 16,
     textAlign: "center",
+  },
+  errorText: {
+    color: "red",
+    marginBottom: 8,
+    marginLeft: 20, // Adjust the margin to align with the corresponding input
   },
 });
 
