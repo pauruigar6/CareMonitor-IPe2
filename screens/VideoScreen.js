@@ -77,8 +77,8 @@ const VideoScreen = () => {
 
   const handleVideoPress = (index) => {
     Alert.alert("Video Options", "What would you like to do with this video?", [
-      { text: "Delete Video", onPress: () => handleDeleteVideo(index) },
       { text: "Save Video", onPress: () => handleSaveVideo(index) },
+      { text: "Delete", onPress: () => handleDeleteVideo(index) },
       { text: "Cancel", style: "cancel" },
     ]);
   };

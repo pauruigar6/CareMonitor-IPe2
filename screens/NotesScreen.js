@@ -68,11 +68,11 @@ const NotesScreen = () => {
   const handleEditNote = (noteId) => {
     // Muestra opciones para editar o eliminar la nota
     Alert.alert(
-      "Note Options", "What would you like to do with this note?",
+      "Note Options",
+      "What would you like to do with this note?",
       [
-        { text: "Delete Note", onPress: () => confirmDeleteNote(noteId) },
         { text: "Edit Note", onPress: () => handleEditOption(noteId) },
-  
+        { text: "Delete", onPress: () => confirmDeleteNote(noteId) },
         { text: "Cancel", style: "cancel" },
       ],
       { cancelable: true }
@@ -133,12 +133,12 @@ const NotesScreen = () => {
       "Confirm Delete",
       "Are you sure you want to delete this note?",
       [
+        { text: "Delete", onPress: () => handleDeleteNote(noteId) },
         {
           text: "Cancel",
           onPress: () => console.log("Cancel Pressed"),
           style: "cancel",
         },
-        { text: "Delete", onPress: () => handleDeleteNote(noteId) },
       ],
       { cancelable: false }
     );

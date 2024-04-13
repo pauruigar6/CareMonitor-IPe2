@@ -77,8 +77,9 @@ const PhotoScreen = () => {
 
   const handleImagePress = (index) => {
     Alert.alert("Photo Options", "What would you like to do with this photo?", [
-      { text: "Delete Photo", onPress: () => handleDeletePhoto(index) },
       { text: "Save Photo", onPress: () => handleSavePhoto(index) },
+      { text: "Delete", onPress: () => handleDeletePhoto(index) },
+  
       { text: "Cancel", style: "cancel" },
     ]);
   };
