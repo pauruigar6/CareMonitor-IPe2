@@ -197,10 +197,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
-    padding: 18,
   },
   scrollViewContent: {
-    padding: SIZES.padding * 2,
+    padding: 30,
   },
   sectionHeading: {
     ...FONTS.h2,
