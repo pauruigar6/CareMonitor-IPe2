@@ -7,14 +7,13 @@ import {
   SafeAreaView,
   TouchableOpacity,
   StyleSheet,
-  Alert,
 } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import appConfig from "../constants/appConfig";
 import { useAudio } from "../utils/AudioContext";
 import { Audio } from "expo-av";
-import { getDocs, deleteDoc, doc, collection } from "firebase/firestore";
-import { auth, db } from "../utils/firebase-config";
+import { getDocs, deleteDoc, doc, collection } from 'firebase/firestore';
+import { auth, db } from '../utils/firebase-config'
 
 const RecordingsScreen = () => {
   const { state, dispatch } = useAudio();
@@ -57,53 +56,59 @@ const RecordingsScreen = () => {
     setExpandedIndex((prevIndex) => (prevIndex === index ? null : index));
   };
 
-  const handleClearRecordings = () => {
-    Alert.alert(
-      "Confirm Delete All",
-      "Are you sure you want to delete all recordings?",
-      [
-        {
-          text: "Cancel",
-          onPress: () => console.log("Cancel Pressed"),
-          style: "cancel",
-        },
-        {
-          text: "Delete All",
-          onPress: async () => {
-            try {
-              const user = auth.currentUser;
-              const userInfoRef = doc(db, "userInfo", user.uid);
-              const audioInfoCollectionRef = collection(
-                userInfoRef,
-                "audioInfo"
-              );
+  const handleDeleteRecording = async () => {
+    try {
+      const user = auth.currentUser;
+      const userInfoRef = doc(db, 'userInfo', user.uid);
+      const audioInfoCollectionRef = collection(userInfoRef, 'audioInfo');
 
-              const querySnapshot = await getDocs(audioInfoCollectionRef);
+      if (expandedIndex !== null) {
+        const recordingToDelete = state.recordings[expandedIndex];
 
-              const deletePromises = querySnapshot.docs.map((doc) =>
-                deleteDoc(doc.ref)
-              );
-              await Promise.all(deletePromises);
+        // Encontrar el documento en la colección según el ID del audio
+        const querySnapshot = await getDocs(audioInfoCollectionRef);
+        const audioDoc = querySnapshot.docs.find(doc => doc.id === recordingToDelete.id);
 
-              dispatch({ type: "CLEAR_ALL_RECORDINGS" });
-              setExpandedIndex(null);
-              console.log("Deleting all recordings...");
-              setSound([]);
-              // dispatch({ type: "CLEAR_ALL_RECORDINGS" });
-            } catch (error) {
-              console.error("Error deleting recordings:", error);
-            }
-          },
-        },
-      ]
-    );
+        if (audioDoc) {
+          // Borrar el documento de la colección
+          await deleteDoc(audioDoc.ref);
+
+          // Actualizar el estado local eliminando el audio
+          const updatedRecordings = state.recordings.filter((_, i) => i !== expandedIndex);
+          dispatch({ type: 'SET_RECORDINGS', payload: updatedRecordings });
+        }
+      }
+    } catch (error) {
+      console.error('Error deleting recording:', error);
+    }
+  };
+  
+
+  const handleClearRecordings = async () => {
+    try {
+      const user = auth.currentUser;
+      const userInfoRef = doc(db, 'userInfo', user.uid);
+      const audioInfoCollectionRef = collection(userInfoRef, 'audioInfo');
+      
+      const querySnapshot = await getDocs(audioInfoCollectionRef);
+
+      const deletePromises = querySnapshot.docs.map((doc) =>
+        deleteDoc(doc.ref)
+      );
+      await Promise.all(deletePromises);
+
+      dispatch({ type: 'CLEAR_ALL_RECORDINGS' });
+      setExpandedIndex(null);
+    } catch (error) {
+      console.error('Error clearing recordings:', error);
+    }
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.contentContainer}>
         <Text style={{ ...appConfig.FONTS.h1, color: appConfig.COLORS.black }}>
-          Recordings
+          Results
         </Text>
         {state.recordings.map((recording, index) => (
           <TouchableOpacity
@@ -141,7 +146,7 @@ const RecordingsScreen = () => {
             onPress={handleClearRecordings}
             style={styles.clearButton}
           >
-            <Text style={styles.clearButtonText}>Delete All Recordings</Text>
+            <Text style={styles.clearButtonText}>Clear Recordings</Text>
           </TouchableOpacity>
         )}
       </ScrollView>
@@ -198,6 +203,7 @@ const styles = StyleSheet.create({
     color: appConfig.COLORS.primary,
   },
   clearButton: {
+    backgroundColor: appConfig.COLORS.primary,
     borderRadius: 8,
     padding: 10,
     alignSelf: "center",
@@ -205,7 +211,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   clearButtonText: {
-    color: "red",
+    color: appConfig.COLORS.white,
     fontSize: 16,
   },
   expandedContent: {
